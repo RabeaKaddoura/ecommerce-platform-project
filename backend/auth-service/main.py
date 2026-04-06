@@ -1,8 +1,8 @@
 from fastapi import FastAPI
+from api.routes import router
+from db.session import init_db
 
-app = FastAPI()
+app = FastAPI(title="Auth Service")
 
-
-@app.get("/")
-async def root():
-    return {"message": "Hello from auth"}
+app.include_router(router)
+init_db(app)

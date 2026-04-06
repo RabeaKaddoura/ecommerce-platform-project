@@ -13,10 +13,21 @@ ENV/
 # Environment variables
 .env
 
+# IDEs
+.vscode/
+.idea/
 
+# OS
+.DS_Store
+Thumbs.db
 
 # Logs
 *.log
 
+# FastAPI / Uvicorn
+*.sqlite3
 
-
+# Node (if frontend exists)
+node_modules/
+dist/
+build/
