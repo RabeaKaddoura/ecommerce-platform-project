@@ -1,8 +1,8 @@
 from fastapi import FastAPI
+from api.routes import router
+from db.session import init_db
 
-app = FastAPI()
+app = FastAPI(title="Cart Service")
 
-
-@app.get("/")
-async def root():
-    return {"message": "Hello from cart"}
+app.include_router(router)
+init_db(app)

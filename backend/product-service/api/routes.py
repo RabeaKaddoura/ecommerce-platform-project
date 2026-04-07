@@ -1,12 +1,6 @@
 from fastapi import APIRouter, HTTPException
 from api.schemas import ProductCreate, ProductUpdate, ProductOut
-from services.product_service import (
-    create_product,
-    get_all_products,
-    get_product_by_id,
-    update_product,
-    delete_product,
-)
+from services.product_service import (create_product, get_all_products, get_product_by_id, update_product, delete_product)
 
 router = APIRouter(prefix="/api/products", tags=["Products"])
 
