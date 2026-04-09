@@ -1,8 +1,8 @@
 from fastapi import FastAPI
+from api.routes import router
+from db.session import init_db
 
-app = FastAPI()
+app = FastAPI(title="Payment Service")
 
-
-@app.get("/")
-async def root():
-    return {"message": "Hello World"}
+app.include_router(router)
+init_db(app)
