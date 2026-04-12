@@ -10,9 +10,9 @@ from services.order_service import (
 import httpx
 
 router = APIRouter(prefix="/api/orders", tags=["Orders"])
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="http://localhost:8000/api/auth/login")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="http://localhost:8002/api/auth/login")
 
-AUTH_SERVICE_URL = "http://localhost:8000"
+AUTH_SERVICE_URL = "http://localhost:8002"
 
 async def get_current_user(token: str = Depends(oauth2_scheme)) -> dict:
     async with httpx.AsyncClient() as client:

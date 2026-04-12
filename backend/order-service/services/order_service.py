@@ -1,7 +1,9 @@
 from models.order_model import Order, OrderItem
 import httpx
+from kafka.producer import publish_event
 
-CART_SERVICE_URL = "http://localhost:8003" 
+
+CART_SERVICE_URL = "http://localhost:8001" 
 PRODUCT_SERVICE_URL = "http://localhost:8002"  
 
 async def create_order_from_cart(user_id: int, token: str) -> Order | None:
@@ -31,11 +33,11 @@ async def create_order_from_cart(user_id: int, token: str) -> Order | None:
         )
 
     #Clear the cart
-    async with httpx.AsyncClient() as client:
-        await client.delete(
-            f"{CART_SERVICE_URL}/api/cart/",
-            headers={"Authorization": f"Bearer {token}"}
-        )
+    await publish_event("order.created", {
+        "order_id": order.id,
+        "user_id": user_id,
+        "token": token  #cart-service needs this to identify whose cart to clear
+    })
 
     return order
 
