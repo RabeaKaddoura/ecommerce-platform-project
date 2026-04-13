@@ -16,6 +16,7 @@ class OrderOut(BaseModel):
     id: int
     user_id: int
     status: str
+    total: Decimal
     created_at: datetime
     items: list[OrderItemOut] = []
 

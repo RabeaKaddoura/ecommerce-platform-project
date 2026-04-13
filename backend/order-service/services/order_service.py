@@ -1,10 +1,14 @@
 from models.order_model import Order, OrderItem
 import httpx
 from kafka.producer import publish_event
+from decimal import Decimal
+import os
+from dotenv import load_dotenv
 
+load_dotenv()
 
-CART_SERVICE_URL = "http://localhost:8001" 
-PRODUCT_SERVICE_URL = "http://localhost:8002"  
+CART_SERVICE_URL = os.getenv("CART_SERVICE_URL")
+
 
 async def create_order_from_cart(user_id: int, token: str) -> Order | None:
     #Fetch the user's cart from cart-service
@@ -20,8 +24,13 @@ async def create_order_from_cart(user_id: int, token: str) -> Order | None:
     if not cart["items"]:
         return None
 
+    total = sum( #Calculate order sum
+        Decimal(str(item["price"])) * item["quantity"]
+        for item in cart["items"]
+    )
+
     #Create the order
-    order = await Order.create(user_id=user_id)
+    order = await Order.create(user_id=user_id, total=total)
 
     #Create order items from fetched cart items
     for item in cart["items"]:
