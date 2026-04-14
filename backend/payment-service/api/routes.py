@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException, Depends, Request
 from fastapi.security import OAuth2PasswordBearer
-from api.schemas import PaymentIntentRequest, PaymentIntentOut, PaymentOut
+from api.schemas import PaymentIntentRequest, PaymentIntentOut
 from services.payment_service import create_payment_intent, handle_webhook, get_payment_by_order
 import httpx
 import os
@@ -25,9 +25,10 @@ async def get_current_user(token: str = Depends(oauth2_scheme)) -> dict:
 @router.post("/create-intent", response_model=PaymentIntentOut)
 async def create_intent(
     data: PaymentIntentRequest,
+    token: str = Depends(oauth2_scheme),
     user: dict = Depends(get_current_user)
 ):
-    result = await create_payment_intent(data.order_id, user["id"], data.amount)
+    result = await create_payment_intent(data.order_id, user["id"], token)
     if "error" in result:
         raise HTTPException(status_code=400, detail=result["error"])
     return result

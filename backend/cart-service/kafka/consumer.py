@@ -2,7 +2,7 @@ from aiokafka import AIOKafkaConsumer
 from services.cart_service import clear_cart
 import json
 
-async def consume_events():
+async def consume_events(): #Consumes order creation events produced by order-service to clear cart
     consumer = AIOKafkaConsumer(
         "order.created",
         bootstrap_servers="localhost:9092",

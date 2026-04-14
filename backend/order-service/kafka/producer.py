@@ -2,7 +2,7 @@
 from aiokafka import AIOKafkaProducer
 import json
 
-async def publish_event(topic: str, data: dict):
+async def publish_event(topic: str, data: dict): #Produces order creation events
     producer = AIOKafkaProducer(bootstrap_servers="localhost:9092")
     await producer.start()
     try:

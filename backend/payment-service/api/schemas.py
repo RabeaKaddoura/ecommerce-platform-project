@@ -4,7 +4,7 @@ from datetime import datetime
 
 class PaymentIntentRequest(BaseModel):
     order_id: int
-    amount: Decimal  
+ 
 
 class PaymentIntentOut(BaseModel):
     client_secret: str  #Frontend uses this to complete payment with Stripe
