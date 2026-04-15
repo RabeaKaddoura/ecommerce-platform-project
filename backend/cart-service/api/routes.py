@@ -8,6 +8,7 @@ import os
 
 
 load_dotenv()
+
 AUTH_SERVICE_URL = os.getenv("AUTH_SERVICE_URL")
 
 router = APIRouter(prefix="/api/cart", tags=["Cart"])

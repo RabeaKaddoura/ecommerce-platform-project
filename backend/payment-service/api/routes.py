@@ -4,11 +4,14 @@ from api.schemas import PaymentIntentRequest, PaymentIntentOut
 from services.payment_service import create_payment_intent, handle_webhook, get_payment_by_order
 import httpx
 import os
+from dotenv import load_dotenv
 
-router = APIRouter(prefix="/api/payments", tags=["Payments"])
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="http://localhost:8000/api/auth/login")
+load_dotenv()
 
 AUTH_SERVICE_URL = os.getenv("AUTH_SERVICE_URL")
+
+router = APIRouter(prefix="/api/payments", tags=["Payments"])
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/auth/login")
 
 
 async def get_current_user(token: str = Depends(oauth2_scheme)) -> dict:
