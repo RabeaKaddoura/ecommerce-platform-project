@@ -9,7 +9,9 @@ class UserCreate(BaseModel):
 
 class UserOut(BaseModel):
     id: int
+    name: str
     email: str
+    isAdmin: bool
 
     class Config:
         from_attributes = True  # lets Pydantic read Tortoise ORM objects
