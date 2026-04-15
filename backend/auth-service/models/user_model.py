@@ -6,7 +6,7 @@ class User(Model):
     name = fields.CharField(max_length=100, null=False, index=True)
     email = fields.CharField(max_length=255, null=False, index=True, unique=True)
     hashed_password = fields.CharField(max_length=255, null=False)
-    is_admin = fields.BooleanField(default=False)
+    isAdmin = fields.BooleanField(default=False)
     created_at = fields.DatetimeField(auto_now_add=True)
     
     class Meta: 

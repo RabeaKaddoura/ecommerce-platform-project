@@ -9,6 +9,7 @@ from services.order_service import (
 )
 import httpx
 
+
 router = APIRouter(prefix="/api/orders", tags=["Orders"])
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="http://localhost:8002/api/auth/login")
 

@@ -21,6 +21,7 @@ class LoginRequest(BaseModel):
     email: EmailStr
     password: str
 
+
 class TokenOut(BaseModel):
     access_token: str
     token_type: str = "bearer"
