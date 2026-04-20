@@ -18,10 +18,10 @@ export default defineConfig({
   server: {
     proxy: {
       '/api/auth': { target: 'http://localhost:8002', changeOrigin: true },
-      '/api/products': { target: 'http://localhost:8004', changeOrigin: true },
+      '/api/products': { target: 'http://localhost:8003', changeOrigin: true },
       '/api/cart': { target: 'http://localhost:8001', changeOrigin: true },
       '/api/orders': { target: 'http://localhost:8000', changeOrigin: true },
-      '/api/payment': { target: 'http://localhost:8005', changeOrigin: true },
+      '/api/payment': { target: 'http://localhost:8004', changeOrigin: true },
     }
   }
 })

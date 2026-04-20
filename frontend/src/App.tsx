@@ -5,6 +5,7 @@ import { getMe } from '@/api/authApi'
 import LoginPage from '@/pages/LoginPage'
 import RegisterPage from '@/pages/RegisterPage'
 import Layout from '@/components/shared/Layout'
+import ProductsPage from '@/pages/ProductsPage'
 
 //Protected route wrapper
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
@@ -41,8 +42,8 @@ function App() {
 
         {/* All pages with navbar go inside this layout route */}
         <Route element={<Layout />}>
-          <Route path="/" element={<ProtectedRoute><div>Homepage coming soon</div></ProtectedRoute>} />
-          <Route path="/products" element={<ProtectedRoute><div>Products coming soon</div></ProtectedRoute>} />
+          <Route path="/" element={<ProtectedRoute><ProductsPage /></ProtectedRoute>} />
+          <Route path="/products" element={<ProtectedRoute><ProductsPage /></ProtectedRoute>} />
           <Route path="/cart" element={<ProtectedRoute><div>Cart coming soon</div></ProtectedRoute>} />
         </Route>
 

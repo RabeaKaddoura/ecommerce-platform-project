@@ -25,6 +25,10 @@ async def get_current_user(token: str = Depends(oauth2_scheme)) -> dict:
     return response.json()
 
 
+@router.post("/test", response_model=ProductOut, status_code=201) #Product creation testing endpoint.
+async def create(data: ProductCreate, user: dict = Depends(get_current_user)):
+    return await create_product(data)
+
 
 @router.post("/", response_model=ProductOut, status_code=201)
 async def create(data: ProductCreate, user: dict = Depends(get_current_user)):
