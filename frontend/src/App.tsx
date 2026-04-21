@@ -6,6 +6,8 @@ import LoginPage from '@/pages/LoginPage'
 import RegisterPage from '@/pages/RegisterPage'
 import Layout from '@/components/shared/Layout'
 import ProductsPage from '@/pages/ProductsPage'
+import ProductDetailPage from '@/pages/ProductDetailPage'
+import CartPage from '@/pages/CartPage'
 
 //Protected route wrapper
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
@@ -44,7 +46,8 @@ function App() {
         <Route element={<Layout />}>
           <Route path="/" element={<ProtectedRoute><ProductsPage /></ProtectedRoute>} />
           <Route path="/products" element={<ProtectedRoute><ProductsPage /></ProtectedRoute>} />
-          <Route path="/cart" element={<ProtectedRoute><div>Cart coming soon</div></ProtectedRoute>} />
+          <Route path="/cart" element={<ProtectedRoute><CartPage /></ProtectedRoute>} />
+          <Route path="/products/:id" element={<ProtectedRoute><ProductDetailPage /></ProtectedRoute>} />
         </Route>
 
         <Route path="*" element={<Navigate to="/" replace />} />

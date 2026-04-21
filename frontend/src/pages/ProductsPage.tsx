@@ -9,7 +9,7 @@ export default function ProductsPage() {
 
     const [search, setSearch] = useState('')
 
-    const { data: products, isLoading, isError } = useQuery({ //A state manager for getProducts request. 
+    const { data: products, isLoading, isError } = useQuery({ //A state manager for getProducts request. Runs automatically when component renders to fetch products.
         queryKey: ['products'],
         queryFn: getProducts,
     })

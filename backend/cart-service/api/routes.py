@@ -23,7 +23,7 @@ async def get_current_user(token: str = Depends(oauth2_scheme)) -> dict:
         )
     if response.status_code != 200:
         raise HTTPException(status_code=401, detail="Invalid or expired token")
-    return response.json()  # {"id": 1, "email": "..."}
+    return response.json()  #{"id": 1, "email": "..."}
 
 
 @router.get("/", response_model=CartOut)
