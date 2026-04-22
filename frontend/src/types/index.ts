@@ -53,3 +53,22 @@ export interface CartItemAdd {
     quantity: number
     price: number
 }
+
+
+//Order types
+
+export interface OrderItem {
+    id: number
+    product_id: number
+    quantity: number
+    price: number
+}
+
+export interface Order {
+    id: number
+    user_id: number
+    status: string
+    total: string
+    created_at: string
+    items: OrderItem[]
+}

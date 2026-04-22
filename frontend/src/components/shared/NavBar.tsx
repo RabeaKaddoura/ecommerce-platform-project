@@ -26,6 +26,9 @@ export default function Navbar() {
                     <Link to="/products" className="hover:text-foreground transition-colors">
                         Products
                     </Link>
+                    <Link to="/orders" className="hover:text-foreground transition-colors">
+                        Orders
+                    </Link>
                     {user?.isAdmin && ( //Admin panel
                         <Link to="/admin/products" className="hover:text-foreground transition-colors flex items-center gap-1">
                             <Shield className="w-4 h-4" />
