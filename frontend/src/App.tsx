@@ -12,6 +12,7 @@ import CheckoutPage from '@/pages/CheckoutPage'
 import OrdersPage from '@/pages/OrdersPage'
 import OrderDetailPage from '@/pages/OrderDetailPage'
 import PaymentPage from '@/pages/PaymentPage'
+import AdminProductsPage from '@/pages/admin/AdminProductsPage'
 
 //Protected route wrapper
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
@@ -56,6 +57,7 @@ function App() {
           <Route path="/orders" element={<ProtectedRoute><OrdersPage /></ProtectedRoute>} />
           <Route path="/orders/:id" element={<ProtectedRoute><OrderDetailPage /></ProtectedRoute>} />
           <Route path="/payment/:orderId" element={<ProtectedRoute><PaymentPage /></ProtectedRoute>} />
+          <Route path="/admin/products" element={<AdminRoute><AdminProductsPage /></AdminRoute>} />
         </Route>
 
         <Route path="*" element={<Navigate to="/" replace />} />
