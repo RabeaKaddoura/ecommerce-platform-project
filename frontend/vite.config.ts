@@ -21,7 +21,7 @@ export default defineConfig({
       '/api/products': { target: 'http://localhost:8003', changeOrigin: true },
       '/api/cart': { target: 'http://localhost:8001', changeOrigin: true },
       '/api/orders': { target: 'http://localhost:8000', changeOrigin: true },
-      '/api/payment': { target: 'http://localhost:8004', changeOrigin: true },
+      '/api/payments': { target: 'http://localhost:8004', changeOrigin: true },
     }
   }
 })

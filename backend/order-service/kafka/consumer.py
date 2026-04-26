@@ -1,8 +1,10 @@
+import asyncio
 from aiokafka import AIOKafkaConsumer
 from services.order_service import update_order_status
 import json
 
 async def consume_events():
+    await asyncio.sleep(5)  #Wait for Kafka to be ready
     consumer = AIOKafkaConsumer( #Consumes payment events produced by payment-service 
         "payment.succeeded",
         "payment.failed",

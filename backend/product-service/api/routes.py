@@ -25,10 +25,16 @@ async def get_current_user(token: str = Depends(oauth2_scheme)) -> dict:
     return response.json()
 
 
-@router.post("/test", response_model=ProductOut, status_code=201) #Product creation testing endpoint.
+@router.post("/test", response_model=ProductOut, status_code=201) #TESTING
 async def create(data: ProductCreate, user: dict = Depends(get_current_user)):
     return await create_product(data)
 
+@router.delete("/test/{product_id}", status_code=204) #TESTING
+async def delete(product_id: int, user: dict = Depends(get_current_user)):
+    success = await delete_product(product_id)
+    if not success:
+        raise HTTPException(status_code=404, detail="Product not found")
+    
 
 @router.post("/", response_model=ProductOut, status_code=201)
 async def create(data: ProductCreate, user: dict = Depends(get_current_user)):

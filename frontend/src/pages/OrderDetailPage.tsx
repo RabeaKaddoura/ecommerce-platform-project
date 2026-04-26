@@ -6,6 +6,7 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { ArrowLeft } from 'lucide-react'
 
+
 const statusColor: Record<string, 'default' | 'secondary' | 'destructive'> = { //Used to change order status UI color based fetched order status.
     pending: 'secondary',
     confirmed: 'default',
@@ -51,6 +52,12 @@ export default function OrderDetailPage() {
                     {order.status}
                 </Badge>
             </div>
+
+            {order.status === 'pending' && (
+                <Button onClick={() => navigate(`/payment/${order.id}`)}>
+                    Complete Payment
+                </Button>
+            )}
 
             <p className="text-sm text-muted-foreground">
                 Placed on {new Date(order.created_at).toLocaleDateString()}

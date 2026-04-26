@@ -5,6 +5,7 @@ from dotenv import load_dotenv
 from models.payment_model import Payment
 from kafka.producer import publish_event
 from decimal import Decimal
+from tortoise.exceptions import IntegrityError
 
 load_dotenv()
 
@@ -39,13 +40,16 @@ async def create_payment_intent(order_id: int, user_id: int, token: str) -> dict
         metadata={"order_id": order_id, "user_id": user_id}
     )
 
-    await Payment.create( #Save payment record locally.
-        order_id=order_id,
-        user_id=user_id,
-        stripe_payment_intent_id=intent.id,
-        amount=amount,
-        status="pending"
-    )
+    try:
+        await Payment.create( #Save payment record locally.
+            order_id=order_id,
+            user_id=user_id,
+            stripe_payment_intent_id=intent.id,
+            amount=amount,
+            status="pending"
+        )
+    except IntegrityError:
+        return {"error": "Payment already exists for this order"}
 
     return {
         "client_secret": intent.client_secret,
@@ -66,6 +70,7 @@ async def handle_webhook(payload: bytes, sig_header: str) -> str:
         if payment:
             payment.status = "succeeded"
             await payment.save()
+            print(f"[payment-service] publishing payment.succeeded for order {payment.order_id}")
             await publish_event("payment.succeeded", {
                 "order_id": payment.order_id,
                 "user_id": payment.user_id

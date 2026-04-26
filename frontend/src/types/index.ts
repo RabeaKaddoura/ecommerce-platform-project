@@ -72,3 +72,11 @@ export interface Order {
     created_at: string
     items: OrderItem[]
 }
+
+
+//Payment types
+
+export interface PaymentIntent {
+    client_secret: string
+    payment_intent_id: string
+}
