@@ -9,6 +9,7 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Badge } from '@/components/ui/badge'
 import { Pencil, Trash2, Plus } from 'lucide-react'
+import { PRODUCT_SERVICE_URL } from '@/utils/config'
 
 type ProductFormData = Omit<Product, 'id'>
 
@@ -30,7 +31,7 @@ interface ProductFormProps {
     title: string
 }
 
-function ProductForm({ initial, onSubmit, isPending, onCancel, title }: ProductFormProps) {
+function ProductForm({ initial, onSubmit, isPending, onCancel, title }: ProductFormProps) { //Reusable form component for CRUD operations.
     const [form, setForm] = useState<ProductFormData>(initial)
 
     const set = (field: keyof ProductFormData, value: string | number) => {
@@ -172,7 +173,7 @@ export default function AdminProductsPage() {
                         <CardContent className="p-4 flex items-center justify-between gap-4">
                             <div className="flex items-center gap-4 min-w-0">
                                 <img
-                                    src={`http://localhost:8003/static/images/${product.product_image}`}
+                                    src={`${PRODUCT_SERVICE_URL}/static/images/${product.product_image}`}
                                     alt={product.name}
                                     className="w-12 h-12 rounded object-cover bg-muted shrink-0"
                                 />

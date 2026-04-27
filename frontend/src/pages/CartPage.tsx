@@ -1,41 +1,61 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { getCart, removeItem, clearCart } from '@/api/cartApi'
+import { getProducts } from '@/api/productApi'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent } from '@/components/ui/card'
 import { Trash2, ShoppingCart } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
+import { Separator } from '@/components/ui/separator'
+import { PRODUCT_SERVICE_URL } from '@/utils/config'
 
 export default function CartPage() {
     const navigate = useNavigate()
     const queryClient = useQueryClient()
 
-    const { data: cart, isLoading, isError } = useQuery({ //Runs automatically when component renders to fetch cart.
-        queryKey: ['cart'], //caching
+    const { data: cart, isLoading: cartLoading } = useQuery({
+        queryKey: ['cart'],
         queryFn: getCart,
-        retry: false, //Don't retry on 404 (empty cart)
+        retry: false,
     })
 
-    const { mutate: remove } = useMutation({ //Triggers on remove cart item. Calls API.
+    const { data: products } = useQuery({
+        queryKey: ['products'],
+        queryFn: getProducts,
+    })
+
+    const { mutate: remove } = useMutation({
         mutationFn: (itemId: number) => removeItem(itemId),
-        onSuccess: () => queryClient.invalidateQueries({ queryKey: ['cart'] }), //Removes older cache
+        onSuccess: () => queryClient.invalidateQueries({ queryKey: ['cart'] }),
     })
 
-    const { mutate: clear, isPending: clearing } = useMutation({ //Triggers on clearing cart item. Calls API.
+    const { mutate: clear, isPending: clearing } = useMutation({
         mutationFn: clearCart,
-        onSuccess: () => queryClient.invalidateQueries({ queryKey: ['cart'] }), //Removes older cache
+        onSuccess: () => queryClient.invalidateQueries({ queryKey: ['cart'] }),
     })
 
-    const total = cart?.items.reduce((sum, item) => sum + Number(item.price) * item.quantity, 0) ?? 0
-
-    if (isLoading) {
-        return <div className="flex flex-col gap-4">
-            {Array.from({ length: 3 }).map((_, i) => (
-                <div key={i} className="h-20 bg-muted rounded-lg animate-pulse" />
-            ))}
-        </div>
+    const getProductName = (productId: number) => {
+        return products?.find((p) => p.id === productId)?.name ?? `Product #${productId}`
     }
 
-    const isEmpty = isError || !cart || cart.items.length === 0
+    const getProductImage = (productId: number) => {
+        const image = products?.find((p) => p.id === productId)?.product_image
+        return image ? `${PRODUCT_SERVICE_URL}/static/images/${image}` : null
+    }
+
+    const total = cart?.items.reduce(
+        (sum, item) => sum + Number(item.price) * item.quantity, 0
+    ) ?? 0
+
+    if (cartLoading) {
+        return (
+            <div className="flex flex-col gap-4">
+                {Array.from({ length: 3 }).map((_, i) => (
+                    <div key={i} className="h-20 bg-muted rounded-lg animate-pulse" />
+                ))}
+            </div>
+        )
+    }
+
+    const isEmpty = !cart || cart.items.length === 0
 
     if (isEmpty) {
         return (
@@ -53,45 +73,63 @@ export default function CartPage() {
                 <h1 className="text-3xl font-bold">Your Cart</h1>
                 <Button
                     variant="ghost"
+                    size="sm"
                     className="text-red-500 hover:text-red-600"
                     onClick={() => clear()}
                     disabled={clearing}
                 >
-                    {clearing ? 'Clearing...' : 'Clear Cart'}
+                    {clearing ? 'Clearing...' : 'Clear all'}
                 </Button>
             </div>
 
-            {/* Items */}
-            <div className="flex flex-col gap-3">
-                {cart.items.map((item) => (
-                    <Card key={item.id}>
-                        <CardContent className="p-4 flex items-center justify-between">
-                            <div className="flex flex-col gap-1">
-                                <p className="font-medium">Product #{item.product_id}</p>
+            {/* Items — table style, no cards */}
+            <div className="flex flex-col">
+                {cart.items.map((item, index) => (
+                    <div key={item.id}>
+                        <div className="flex items-center gap-4 py-4">
+                            {/* Image */}
+                            <div className="w-16 h-16 rounded-md overflow-hidden bg-muted shrink-0">
+                                {getProductImage(item.product_id) ? (
+                                    <img
+                                        src={getProductImage(item.product_id)!}
+                                        alt={getProductName(item.product_id)}
+                                        className="w-full h-full object-cover"
+                                    />
+                                ) : (
+                                    <div className="w-full h-full bg-muted" />
+                                )}
+                            </div>
+
+                            {/* Name + qty */}
+                            <div className="flex-1 min-w-0">
+                                <p className="font-medium truncate">{getProductName(item.product_id)}</p>
                                 <p className="text-sm text-muted-foreground">
                                     Qty: {item.quantity} × ${Number(item.price).toFixed(2)}
                                 </p>
                             </div>
-                            <div className="flex items-center gap-4">
-                                <span className="font-bold">
+
+                            {/* Price + delete */}
+                            <div className="flex items-center gap-3 shrink-0">
+                                <span className="font-semibold">
                                     ${(Number(item.price) * item.quantity).toFixed(2)}
                                 </span>
                                 <Button
                                     variant="ghost"
                                     size="icon"
-                                    className="text-red-500 hover:text-red-600"
+                                    className="text-muted-foreground hover:text-red-500"
                                     onClick={() => remove(item.id)}
                                 >
                                     <Trash2 className="w-4 h-4" />
                                 </Button>
                             </div>
-                        </CardContent>
-                    </Card>
+                        </div>
+                        {index < cart.items.length - 1 && <Separator />}
+                    </div>
                 ))}
             </div>
 
             {/* Total + Checkout */}
-            <div className="flex items-center justify-between pt-4 border-t">
+            <div className="border-t pt-4 flex items-center justify-between">
                 <div className="flex flex-col">
                     <span className="text-sm text-muted-foreground">Total</span>
                     <span className="text-2xl font-bold">${total.toFixed(2)}</span>

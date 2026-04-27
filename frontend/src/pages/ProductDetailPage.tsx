@@ -8,6 +8,7 @@ import { useState } from 'react'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { addItem } from '@/api/cartApi'
 import { ShoppingCart, Check } from 'lucide-react'
+import { PRODUCT_SERVICE_URL } from '@/utils/config'
 
 export default function ProductDetailPage() {
     const { id } = useParams() //Loads value from URL path. id in this case.
@@ -61,7 +62,7 @@ export default function ProductDetailPage() {
         )
     }
 
-    const imageUrl = `http://localhost:8003/static/images/${product.product_image}`
+    const imageUrl = `${PRODUCT_SERVICE_URL}/static/images/${product.product_image}`
 
     return (
         <div className="flex flex-col gap-6">
