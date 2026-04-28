@@ -4,7 +4,7 @@ const api = axios.create({
     baseURL: '/',
 })
 
-// Attach JWT token to every request automatically
+//Attach JWT token to every request automatically
 api.interceptors.request.use((config) => {
     const token = localStorage.getItem('token')
     if (token) {
@@ -13,7 +13,7 @@ api.interceptors.request.use((config) => {
     return config
 })
 
-// If token expires, clear storage and redirect to login
+//If token expires, clear storage and redirect to login
 api.interceptors.response.use(
     (response) => response,
     (error) => {

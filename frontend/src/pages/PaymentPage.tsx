@@ -5,8 +5,9 @@ import { Elements, PaymentElement, useStripe, useElements } from '@stripe/react-
 import { createPaymentIntent } from '@/api/paymentApi'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
+import { STRIPE_PUBLISHABLE_KEY } from '@/utils/config'
 
-const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY) //Initializes Stripe's JS SDK with publishable key.
+const stripePromise = loadStripe(STRIPE_PUBLISHABLE_KEY) //Initializes Stripe's JS SDK with publishable key.
 
 //Inner form; must be inside <Elements>
 function CheckoutForm({ orderId }: { orderId: number }) {
