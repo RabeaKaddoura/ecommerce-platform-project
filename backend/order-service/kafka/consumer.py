@@ -2,13 +2,16 @@ import asyncio
 from aiokafka import AIOKafkaConsumer
 from services.order_service import update_order_status
 import json
+import os
+
+KAFKA_BOOTSTRAP_SERVERS = os.getenv("KAFKA_BOOTSTRAP_SERVERS", "localhost:9092")
 
 async def consume_events():
     await asyncio.sleep(5)  #Wait for Kafka to be ready
     consumer = AIOKafkaConsumer( #Consumes payment events produced by payment-service 
         "payment.succeeded",
         "payment.failed",
-        bootstrap_servers="localhost:9092",
+        bootstrap_servers=KAFKA_BOOTSTRAP_SERVERS,
         group_id="order-service-group",
         auto_offset_reset="earliest"
     )

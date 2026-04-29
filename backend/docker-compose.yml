@@ -1,5 +1,5 @@
 services:
-  #KAFKA Broker for development
+  #Docker compose file to test KAFKA Broker
   broker:
     image: apache/kafka:4.1.2
     container_name: kafka

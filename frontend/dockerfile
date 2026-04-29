@@ -17,8 +17,9 @@ FROM nginx:alpine AS runtime
 #Copy built assets
 COPY --from=builder /app/dist /usr/share/nginx/html
 
-#Copy nginx config
-COPY nginx.conf /etc/nginx/conf.d/default.conf
+#Copy nginx config. ARG is switched depending on environment.
+ARG NGINX_CONF=nginx.conf 
+COPY ${NGINX_CONF} /etc/nginx/conf.d/default.conf
 
 #Copy and set up entrypoint script
 COPY docker-entrypoint.sh /docker-entrypoint.sh

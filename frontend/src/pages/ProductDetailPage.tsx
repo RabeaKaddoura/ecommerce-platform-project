@@ -23,12 +23,15 @@ export default function ProductDetailPage() {
     })
 
 
-    const { mutate: addToCart, isPending } = useMutation({ //Triggers when adding to cart. Calls API.
-        mutationFn: () => addItem({
-            product_id: product.id,
-            quantity: 1,
-            price: Number(product.new_price),
-        }),
+    const { mutate: addToCart, isPending } = useMutation({
+        mutationFn: () => { //Triggers when adding to cart. Calls API.
+            if (!product) throw new Error('Product not found')
+            return addItem({
+                product_id: product.id,
+                quantity: 1,
+                price: Number(product.new_price),
+            })
+        },
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['cart'] }) //Removes older cache
             setAdded(true)
