@@ -94,7 +94,7 @@ function ProductForm({ initial, onSubmit, isPending, onCancel, title }: ProductF
                         placeholder="productDefault.jpg"
                     />
                     <p className="text-xs text-muted-foreground">
-                        Must match a file in your product service static/images/ folder
+                        Must match a file product service
                     </p>
                 </div>
                 <div className="flex gap-2 mt-2">

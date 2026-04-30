@@ -36,7 +36,7 @@ def decode_access_token(token: str) -> dict | None:
         return None
 
 
-# db operations
+#db operations
 async def register_user(name: str, email: str, password: str) -> User | None:
     existing = await User.filter(email=email).first()
     if existing:
