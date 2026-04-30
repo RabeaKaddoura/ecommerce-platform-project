@@ -102,7 +102,7 @@ services:
       - "80:80"
     environment:
       PRODUCT_SERVICE_URL: http://localhost:8003
-      STRIPE_PUBLISHABLE_KEY: pk_test_51TKIryDq9rvsBqPl2JpR2wvbLj1C8nnd2FylbVHI2YDI5QyoFhVRf00hXrRls2tmi3FUN95mzTi2yzqcyU64cUB200ByQvYLDk
+      STRIPE_PUBLISHABLE_KEY: pk_test
 
 volumes:
   postgres_data:
