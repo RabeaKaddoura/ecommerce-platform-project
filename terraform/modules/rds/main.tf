@@ -4,7 +4,7 @@ resource "aws_db_subnet_group" "default" {
 
   tags = {
     Name        = "${var.prefix}-db-subnet-group"
-    Environment = "${var.prefix}-production"
+    Environment = "${var.prefix}-${var.env}"
   }
 }
 
@@ -23,7 +23,7 @@ resource "aws_db_instance" "db" {
 
   tags = {
     Name        = "${var.prefix}-eks-db"
-    Environment = "${var.prefix}-production"
+    Environment = "${var.prefix}-${var.env}"
   }
 }
 
@@ -35,7 +35,7 @@ resource "aws_security_group" "rds_sg" {
 
   tags = {
     Name        = "${var.prefix}-rds-sg"
-    Environment = "${var.prefix}-production"
+    Environment = "${var.prefix}-${var.env}"
   }
 }
 

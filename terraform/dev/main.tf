@@ -1,11 +1,12 @@
 #Network Module
 
 module "network" {
-  source = "./modules/network"
+  source = "../modules/network"
 
   cluster_name  = var.cluster_name
   vpc_cidr      = var.vpc_cidr
   prefix        = var.prefix
+  env           = var.env
   az_1          = var.az_1
   az_2          = var.az_2
   priv_subnet_1 = var.priv_subnet_1
@@ -84,7 +85,7 @@ module "eks" {
 
   tags = {
     Name        = "${var.prefix}-eks-cluster"
-    Environment = "${var.prefix}-production"
+    Environment = "${var.prefix}-${var.env}"
   }
 }
 
@@ -153,9 +154,10 @@ module "eks_blueprints_addons" {
 #ECR Module
 
 module "ecr" {
-  source = "./modules/ecr"
+  source = "../modules/ecr"
 
   prefix = var.prefix
+  env    = var.env
 }
 
 
@@ -169,9 +171,10 @@ resource "random_password" "db_password" { #randomly generated db password
 }
 
 module "postgres" {
-  source = "./modules/rds"
+  source = "../modules/rds"
 
   prefix         = var.prefix
+  env            = var.env
   db_name        = var.db_name
   subnet_ids     = module.network.private_subnet_ids
   vpc_id         = module.network.vpc_id
@@ -186,8 +189,9 @@ module "postgres" {
 #secret store
 
 module "secret_store" {
-  source      = "./modules/secret-store"
+  source      = "../modules/secret-store"
   prefix      = var.prefix
+  env         = var.env
   secret_name = var.secret_name
   db_name     = module.postgres.db_name
   db_username = module.postgres.db_username

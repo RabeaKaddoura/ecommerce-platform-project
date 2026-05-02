@@ -5,7 +5,7 @@ resource "aws_secretsmanager_secret" "store" { #secret store resource
 
   tags = {
     Name        = "${var.prefix}-secret-manager"
-    Environment = "${var.prefix}-production"
+    Environment = "${var.prefix}-${var.env}"
   }
 }
 

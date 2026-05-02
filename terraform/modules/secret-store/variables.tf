@@ -1,5 +1,7 @@
 variable "prefix" {}
 
+variable "env" {}
+
 variable "secret_name" {}
 
 variable "db_username" {}

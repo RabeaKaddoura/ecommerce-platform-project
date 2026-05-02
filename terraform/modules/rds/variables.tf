@@ -1,5 +1,7 @@
 variable "prefix" {}
 
+variable "env" {}
+
 variable "db_name" {}
 
 variable "subnet_ids" {}

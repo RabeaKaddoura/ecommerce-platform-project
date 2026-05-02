@@ -8,6 +8,6 @@ resource "aws_ecr_repository" "ecr" {
 
   tags = {
     Name        = "${var.prefix}-eks-ecr"
-    Environment = "${var.prefix}-production"
+    Environment = "${var.prefix}-${var.env}"
   }
 }

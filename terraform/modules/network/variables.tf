@@ -9,6 +9,9 @@ variable "vpc_cidr" {}
 variable "prefix" {}
 
 
+variable "env" {}
+
+
 variable "az_1" {}
 
 

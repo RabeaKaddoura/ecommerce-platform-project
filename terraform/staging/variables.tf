@@ -2,7 +2,12 @@
 variable "prefix" {
   description = "tag prefix"
   type        = string
-  default     = "coiner"
+  default     = "ecom"
+}
+
+variable "env" {
+  description = "environment"
+  type        = string
 }
 
 variable "aws_region" {
@@ -62,7 +67,7 @@ variable "pub_subnet_2" {
 variable "cluster_name" {
   description = "eks cluster name"
   type        = string
-  default     = "coiner-cluster"
+  default     = "ecom-cluster"
 }
 
 variable "cluster_version" {
@@ -81,7 +86,7 @@ variable "db_username" {
 variable "db_name" {
   description = "database name"
   type        = string
-  default     = "coiner"
+  default     = "ecom"
 }
 
 
@@ -90,5 +95,5 @@ variable "db_name" {
 variable "secret_name" {
   description = "secret store name"
   type        = string
-  default     = "/production/backend/secrets"
+  default     = "/staging/backend/secrets"
 }
