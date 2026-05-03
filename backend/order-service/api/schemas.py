@@ -22,7 +22,7 @@ class OrderOut(BaseModel):
 
     @field_serializer('total')
     def serialize_total(self, value: Decimal) -> str:
-        return f"{value:.2f}"  # forces "70.00" instead of "7E+1"
+        return f"{value:.2f}"  #forces "70.00" instead of "7E+1"
 
     class Config:
         from_attributes = True
