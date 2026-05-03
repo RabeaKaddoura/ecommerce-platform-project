@@ -14,7 +14,7 @@ class UserOut(BaseModel):
     isAdmin: bool
 
     class Config:
-        from_attributes = True  # lets Pydantic read Tortoise ORM objects
+        from_attributes = True  #lets Pydantic read Tortoise ORM objects.
         
 
 class LoginRequest(BaseModel):
