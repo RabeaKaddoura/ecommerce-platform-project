@@ -64,7 +64,7 @@ async def handle_webhook(payload: bytes, sig_header: str) -> str:
     except stripe.error.SignatureVerificationError:
         return "invalid_signature"
 
-    if event["type"] == "payment_intent.succeeded": #If Stripe returns payment succeeded we update payment status in db as succeeded
+    if event["type"] == "payment_intent.succeeded": #If Stripe returns payment succeeded we update payment status in db as succeeded.
         intent = event["data"]["object"]
         payment = await Payment.filter(stripe_payment_intent_id=intent["id"]).first()
         if payment:
@@ -76,7 +76,7 @@ async def handle_webhook(payload: bytes, sig_header: str) -> str:
                 "user_id": payment.user_id
             })
 
-    elif event["type"] == "payment_intent.payment_failed": #Otherwise if Stripe returns payment_failed we update payment status in db as failed
+    elif event["type"] == "payment_intent.payment_failed": #Otherwise if Stripe returns payment_failed we update payment status in db as failed.
         intent = event["data"]["object"]
         payment = await Payment.filter(stripe_payment_intent_id=intent["id"]).first()
         if payment:
