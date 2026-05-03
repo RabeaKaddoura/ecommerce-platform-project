@@ -9,6 +9,6 @@ def init_db(app):
         app,
         db_url=os.getenv("DATABASE_URL"),
         modules={"models": ["models.product_model"]},
-        generate_schemas=True, #creates db tables
+        generate_schemas=True, #creates db tables.
         add_exception_handlers=True,
     )

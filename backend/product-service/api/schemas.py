@@ -25,4 +25,4 @@ class ProductOut(BaseModel):
     product_image: str
 
     class Config:
-        from_attributes = True  # lets Pydantic read Tortoise ORM objects
+        from_attributes = True  #lets Pydantic read Tortoise ORM objects.
