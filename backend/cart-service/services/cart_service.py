@@ -1,6 +1,6 @@
 from models.cart_model import Cart, CartItem
 from api.schemas import CartItemAdd
-from tortoise.exceptions import DoesNotExist
+#from tortoise.exceptions import DoesNotExist
 
 
 async def get_or_create_cart(user_id: int) -> Cart:
