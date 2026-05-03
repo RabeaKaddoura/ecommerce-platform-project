@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button'
 import { useAuthStore } from '@/store/authStore'
 
 export default function Navbar() {
-    const { isAuthenticated, user, logout } = useAuthStore() //Loads user info from global store
+    const { isAuthenticated, user, logout } = useAuthStore() //Loads user info from global store.
     const navigate = useNavigate()
 
     const handleLogout = () => {
