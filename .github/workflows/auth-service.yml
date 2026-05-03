@@ -9,7 +9,6 @@ on:
 
 permissions:
   contents: read
-  security-events: write #For Trivy to upload results
 
 jobs:
   build-and-push:
