@@ -1,0 +1,47 @@
+#Image
+image:
+  repository: ""
+  tag: "latest"
+  pullPolicy: IfNotPresent
+
+#Replicas
+replicas: 2
+
+#Resources
+resources:
+  requests:
+    cpu: "100m"
+    memory: "128Mi"
+  limits:
+    cpu: "500m"
+    memory: "256Mi"
+
+#HPA
+hpa:
+  minReplicas: 2
+  maxReplicas: 4
+  targetCPU: 70
+
+#Non-sensitive config
+config:
+  dbName: "auth_db"
+  algorithm: "HS256"
+  accessTokenExpireMinutes: "30"
+  kafkaBootstrapServers: "kafka.default.svc.cluster.local:9092"
+
+#App secrets
+appSecrets:
+  secretKey: ""
+
+#CSI secret ARN
+secretProvider:
+  secretArn: ""
+
+#Service account
+serviceAccountName: backend-sa
+
+#Service account IAM role ARN
+serviceAccountRoleArn: ""
+
+#Port
+port: 8000

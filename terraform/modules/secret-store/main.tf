@@ -16,6 +16,5 @@ resource "aws_secretsmanager_secret_version" "values" { #populating secret store
     password = var.db_password
     host     = split(":", var.db_endpoint)[0] #removing port at the end
     port     = tostring(var.db_port)
-    dbname   = var.db_name
   })
 }

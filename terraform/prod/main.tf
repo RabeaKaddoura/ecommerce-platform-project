@@ -193,7 +193,6 @@ module "secret_store" {
   prefix      = var.prefix
   env         = var.env
   secret_name = var.secret_name
-  db_name     = module.postgres.db_name
   db_username = module.postgres.db_username
   db_endpoint = module.postgres.db_endpoint
   db_port     = module.postgres.db_port
