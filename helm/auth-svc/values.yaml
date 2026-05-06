@@ -27,7 +27,7 @@ config:
   dbName: "auth_db"
   algorithm: "HS256"
   accessTokenExpireMinutes: "30"
-  kafkaBootstrapServers: "kafka.default.svc.cluster.local:9092"
+  
 
 #App secrets
 appSecrets:

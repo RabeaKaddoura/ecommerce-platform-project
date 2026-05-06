@@ -1,15 +1,23 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ include "cart-svc.fullname" . }}
-  labels:
-    {{- include "cart-svc.labels" . | nindent 4 }}
+  name: cart-stable
 spec:
-  type: {{ .Values.service.type }}
-  ports:
-    - port: {{ .Values.service.port }}
-      targetPort: http
-      protocol: TCP
-      name: http
+  type: ClusterIP
   selector:
-    {{- include "cart-svc.selectorLabels" . | nindent 4 }}
+    app: cart-app
+  ports:
+    - port: {{ .Values.port }}
+      targetPort: {{ .Values.port }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: cart-canary
+spec:
+  type: ClusterIP
+  selector:
+    app: cart-app
+  ports:
+    - port: {{ .Values.port }}
+      targetPort: {{ .Values.port }}

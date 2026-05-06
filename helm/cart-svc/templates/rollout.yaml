@@ -1,19 +1,19 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Rollout
 metadata:
-  name: auth-rollout
+  name: cart-rollout
   labels:
-    app.kubernetes.io/name: auth-svc
+    app.kubernetes.io/name: cart-svc
     app.kubernetes.io/managed-by: Helm
 spec:
   replicas: {{ .Values.replicas }}
   selector:
     matchLabels:
-      app: auth-app
+      app: cart-app
   strategy:
     canary:
-      stableService: auth-stable
-      canaryService: auth-canary
+      stableService: cart-stable
+      canaryService: cart-canary
       trafficRouting:
         alb:
           ingress: alb-ingress
@@ -28,7 +28,7 @@ spec:
   template:
     metadata:
       labels:
-        app: auth-app
+        app: cart-app
     spec:
       serviceAccountName: {{ .Values.serviceAccountName }}
       volumes:
@@ -37,9 +37,9 @@ spec:
             driver: secrets-store.csi.k8s.io
             readOnly: true
             volumeAttributes:
-              secretProviderClass: auth-db-secrets
+              secretProviderClass: cart-db-secrets
       containers:
-        - name: auth-container
+        - name: cart-container
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
@@ -55,34 +55,29 @@ spec:
             - name: DB_USER
               valueFrom:
                 secretKeyRef:
-                  name: auth-db-secret
+                  name: cart-db-secret
                   key: username
             - name: DB_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: auth-db-secret
+                  name: cart-db-secret
                   key: password
             - name: DB_HOST
               valueFrom:
                 secretKeyRef:
-                  name: auth-db-secret
+                  name: cart-db-secret
                   key: host
             - name: DB_PORT
               valueFrom:
                 secretKeyRef:
-                  name: auth-db-secret
+                  name: cart-db-secret
                   key: port
-            - name: SECRET_KEY
-              valueFrom:
-                secretKeyRef:
-                  name: auth-app-secret
-                  key: SECRET_KEY
-                  
-            - name: ALGORITHM
-              value: {{ .Values.config.algorithm | quote }}
-            - name: ACCESS_TOKEN_EXPIRE_MINUTES
-              value: {{ .Values.config.accessTokenExpireMinutes | quote }}
             
+            - name: KAFKA_BOOTSTRAP_SERVERS
+              value: {{ .Values.config.kafkaBootstrapServers | quote }}
+            - name: AUTH_SERVICE_URL
+              value: {{ .Values.config.authServiceUrl | quote }}
+              
           resources:
             requests:
               cpu: {{ .Values.resources.requests.cpu | quote }}
