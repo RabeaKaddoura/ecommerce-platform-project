@@ -1,0 +1,89 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Rollout
+metadata:
+  name: order-rollout
+  labels:
+    app.kubernetes.io/name: order-svc
+    app.kubernetes.io/managed-by: Helm
+spec:
+  replicas: {{ .Values.replicas }}
+  selector:
+    matchLabels:
+      app: order-app
+  strategy:
+    canary:
+      stableService: order-stable
+      canaryService: order-canary
+      trafficRouting:
+        alb:
+          ingress: alb-ingress
+          servicePort: {{ .Values.port }}
+      steps:
+        - setWeight: 10
+        - pause:
+            duration: 2m
+        - setWeight: 50
+        - pause:
+            duration: 2m
+  template:
+    metadata:
+      labels:
+        app: order-app
+    spec:
+      serviceAccountName: {{ .Values.serviceAccountName }}
+      volumes:
+        - name: secrets-store
+          csi:
+            driver: secrets-store.csi.k8s.io
+            readOnly: true
+            volumeAttributes:
+              secretProviderClass: order-db-secrets
+      containers:
+        - name: order-container
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - containerPort: {{ .Values.port }}
+          volumeMounts:
+            - name: secrets-store
+              mountPath: "/mnt/secrets"
+              readOnly: true
+          env:
+            - name: DB_NAME
+              value: {{ .Values.config.dbName | quote }}
+
+            - name: DB_USER
+              valueFrom:
+                secretKeyRef:
+                  name: order-db-secret
+                  key: username
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: order-db-secret
+                  key: password
+            - name: DB_HOST
+              valueFrom:
+                secretKeyRef:
+                  name: order-db-secret
+                  key: host
+            - name: DB_PORT
+              valueFrom:
+                secretKeyRef:
+                  name: order-db-secret
+                  key: port
+            
+            - name: KAFKA_BOOTSTRAP_SERVERS
+              value: {{ .Values.config.kafkaBootstrapServers | quote }}
+            - name: AUTH_SERVICE_URL
+              value: {{ .Values.config.authServiceUrl | quote }}
+            - name: CART_SERVICE_URL
+              value: {{ .Values.config.cartServiceUrl | quote }}
+              
+          resources:
+            requests:
+              cpu: {{ .Values.resources.requests.cpu | quote }}
+              memory: {{ .Values.resources.requests.memory | quote }}
+            limits:
+              cpu: {{ .Values.resources.limits.cpu | quote }}
+              memory: {{ .Values.resources.limits.memory | quote }}

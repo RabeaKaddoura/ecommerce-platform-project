@@ -28,9 +28,6 @@ config:
   kafkaBootstrapServers: "kafka.default.svc.cluster.local:9092"
   authServiceUrl: "http://auth-stable:8000"
 
-#App secrets
-appSecrets:
-  secretKey: ""
 
 #CSI secret ARN
 secretProvider:
