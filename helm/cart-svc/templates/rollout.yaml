@@ -37,7 +37,7 @@ spec:
             driver: secrets-store.csi.k8s.io
             readOnly: true
             volumeAttributes:
-              secretProviderClass: cart-db-secrets
+              secretProviderClass: backend-db-secrets
       containers:
         - name: cart-container
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
@@ -55,29 +55,29 @@ spec:
             - name: DB_USER
               valueFrom:
                 secretKeyRef:
-                  name: cart-db-secret
+                  name: backend-db-secret
                   key: username
             - name: DB_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: cart-db-secret
+                  name: backend-db-secret
                   key: password
             - name: DB_HOST
               valueFrom:
                 secretKeyRef:
-                  name: cart-db-secret
+                  name: backend-db-secret
                   key: host
             - name: DB_PORT
               valueFrom:
                 secretKeyRef:
-                  name: cart-db-secret
+                  name: backend-db-secret
                   key: port
             
             - name: KAFKA_BOOTSTRAP_SERVERS
               value: {{ .Values.config.kafkaBootstrapServers | quote }}
             - name: AUTH_SERVICE_URL
               value: {{ .Values.config.authServiceUrl | quote }}
-              
+
           resources:
             requests:
               cpu: {{ .Values.resources.requests.cpu | quote }}

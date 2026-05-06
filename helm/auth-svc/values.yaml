@@ -33,9 +33,6 @@ config:
 appSecrets:
   secretKey: ""
 
-#CSI secret ARN
-secretProvider:
-  secretArn: ""
 
 #Service account
 serviceAccountName: backend-sa

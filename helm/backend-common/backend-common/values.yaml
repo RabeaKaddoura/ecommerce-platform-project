@@ -1,0 +1,6 @@
+#CSI secret ARN
+secretProvider:
+  secretArn: ""
+
+#Service account IAM role ARN
+serviceAccountRoleArn: ""
