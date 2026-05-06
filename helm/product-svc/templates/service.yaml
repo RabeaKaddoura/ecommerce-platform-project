@@ -1,15 +1,23 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ include "product-svc.fullname" . }}
-  labels:
-    {{- include "product-svc.labels" . | nindent 4 }}
+  name: product-stable
 spec:
-  type: {{ .Values.service.type }}
-  ports:
-    - port: {{ .Values.service.port }}
-      targetPort: http
-      protocol: TCP
-      name: http
+  type: ClusterIP
   selector:
-    {{- include "product-svc.selectorLabels" . | nindent 4 }}
+    app: product-app
+  ports:
+    - port: {{ .Values.port }}
+      targetPort: {{ .Values.port }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: product-canary
+spec:
+  type: ClusterIP
+  selector:
+    app: product-app
+  ports:
+    - port: {{ .Values.port }}
+      targetPort: {{ .Values.port }}

@@ -29,6 +29,10 @@ config:
   authServiceUrl: "http://auth-stable:8000"
 
 
+#App secrets
+appSecrets:
+  secretKey: ""
+
 #CSI secret ARN
 secretProvider:
   secretArn: ""
