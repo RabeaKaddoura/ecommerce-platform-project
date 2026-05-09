@@ -49,7 +49,7 @@ async def stripe_webhook(request: Request):
 
 @router.get("/{order_id}")
 async def get_payment(order_id: int, user: dict = Depends(get_current_user)):
-    payment = await get_payment_by_order(order_id)
+    payment = await get_payment_by_order(order_id) #
     if not payment:
         raise HTTPException(status_code=404, detail="Payment not found")
-    return payment
+    return payment 

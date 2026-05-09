@@ -51,7 +51,7 @@ async def list_orders(user: dict = Depends(get_current_user)):
 async def get_order(order_id: int, user: dict = Depends(get_current_user)):
     order = await get_order_by_id(order_id, user["id"])
     if not order:
-        raise HTTPException(status_code=404, detail="Order not found")
+        raise HTTPException(status_code=404, detail="Order not found") #
     return order
 
 

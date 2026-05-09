@@ -8,8 +8,8 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-AUTH_SERVICE_URL = os.getenv("AUTH_SERVICE_URL")
-
+AUTH_SERVICE_URL = os.getenv("AUTH_SERVICE_URL") #
+ 
 router = APIRouter(prefix="/api/products", tags=["Products"])
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl=f"/api/auth/login")
 
