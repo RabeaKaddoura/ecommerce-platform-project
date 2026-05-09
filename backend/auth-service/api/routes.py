@@ -10,7 +10,7 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/auth/login") #For token extr
 @router.post("/register", response_model=UserOut, status_code=201)
 async def register(data: UserCreate):
     user = await register_user(data.name, data.email, data.password)
-    if not user: #If user exists register_user returns None
+    if not user: #If user exists register_user returns None.
         raise HTTPException(status_code=400, detail="Email already registered")
     return user
 

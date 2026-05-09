@@ -25,7 +25,7 @@ hpa:
 #Non-sensitive config
 config:
   dbName: "payment_db"
-  kafkaBootstrapServers: "kafka.default.svc.cluster.local:9092"
+  kafkaBootstrapServers: "kafka-kafka-bootstrap.default.svc.cluster.local:9092"
   authServiceUrl: "http://auth-stable:8000"
   orderServiceUrl: "http://order-stable:8000"
 

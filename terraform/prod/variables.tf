@@ -95,5 +95,5 @@ variable "db_name" {
 variable "secret_name" {
   description = "secret store name"
   type        = string
-  default     = "/prodd/backend/secrets"
+  default     = "/proddd/backend/secrets"
 }
