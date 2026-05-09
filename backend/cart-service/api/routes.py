@@ -48,7 +48,7 @@ async def remove_from_cart(item_id: int, user: dict = Depends(get_current_user))
     
 
 @router.delete("/", status_code=204)
-async def clear_my_cart(user: dict = Depends(get_current_user)):
+async def clear_my_cart(user: dict = Depends(get_current_user)): #
    success = await clear_cart(user["id"])
    if not success:
         raise HTTPException(status_code=404, detail="Cart not found")
