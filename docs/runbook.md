@@ -100,7 +100,12 @@ kubectl port-forward svc/prometheus-server -n monitoring 4001:80
 ---
 ## 8. Database Initialization
 ```bash
-psql -h <RDS_ENDPOINT> -U postgres -p 5432
+#Get DB password from Secrets Manager
+aws secretsmanager get-secret-value --secret-id <secret store id e.g. /prod/backend/secrets> --query SecretString --output text
+
+# Connect to RDS from inside the cluster (RDS is in private subnet, not reachable locally)
+kubectl run psql --image=postgres:17 --restart=Never --rm -it --env=PGPASSWORD=<DB_PASSWORD> -- psql "host=<RDS_ENDPOINT> port=5432 user=<DB_USERNAME> dbname=postgres sslmode=require"
+
 ```
 ```sql
 CREATE DATABASE auth_db;
