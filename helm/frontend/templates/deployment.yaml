@@ -12,6 +12,14 @@ spec:
       labels:
         app: frontend-app
     spec:
+      volumes:
+        - name: secrets-store
+          csi:
+            driver: secrets-store.csi.k8s.io
+            readOnly: true
+            volumeAttributes:
+              secretProviderClass: backend-db-secrets
+      serviceAccountName: {{ .Values.serviceAccountName }}
       containers:
         - name: frontend-container
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
@@ -22,7 +30,14 @@ spec:
             - name: PRODUCT_SERVICE_URL
               value: {{ .Values.config.productServiceUrl | quote }}
             - name: STRIPE_PUBLISHABLE_KEY
-              value: {{ .Values.config.stripePublishableKey | quote }}
+              valueFrom:
+                secretKeyRef:
+                  name: backend-db-secret
+                  key: stripe_publishable_key
+          volumeMounts:
+            - name: secrets-store
+              mountPath: "/mnt/secrets"
+              readOnly: true
           readinessProbe:
             httpGet:
               path: /

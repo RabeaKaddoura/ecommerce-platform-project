@@ -83,13 +83,13 @@ spec:
             - name: STRIPE_SECRET_KEY
               valueFrom:
                 secretKeyRef:
-                  name: payment-app-secret
-                  key: STRIPE_SECRET_KEY
+                  name: backend-db-secret
+                  key: stripe_secret_key
             - name: STRIPE_WEBHOOK_SECRET
               valueFrom:
                 secretKeyRef:
-                  name: payment-app-secret
-                  key: STRIPE_WEBHOOK_SECRET
+                  name: backend-db-secret
+                  key: stripe_webhook_secret
                     
           resources:
             requests:

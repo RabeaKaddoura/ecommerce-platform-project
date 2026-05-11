@@ -75,8 +75,8 @@ spec:
             - name: SECRET_KEY
               valueFrom:
                 secretKeyRef:
-                  name: auth-app-secret
-                  key: SECRET_KEY
+                  name: backend-db-secret
+                  key: auth_secret_key
                   
             - name: ALGORITHM
               value: {{ .Values.config.algorithm | quote }}
