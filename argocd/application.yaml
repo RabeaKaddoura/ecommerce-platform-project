@@ -1,0 +1,34 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet #ArgoCD configuration definition file. Points ArgoCD to github repo as the source of truth to update existing eks cluster.
+metadata:
+  name: apps
+  namespace: argocd
+spec:
+  generators:
+    - git: #Git generator to generate template parameters using the repo's folder structure. Utilized to create helm charts existing in multiple subfolders
+        repoURL: https://github.com/RabeaKaddoura/ecommerce-platform-project.git
+        revision: HEAD
+        directories:
+          - path: helm/*
+          - path: helm/kafka.yaml
+            exclude: true #Since kafka.yaml isn't a helm chart.
+  template:
+    metadata:
+      name: "{{path.basename}}"
+
+    spec:
+      project: default
+      source:
+        repoURL: https://github.com/RabeaKaddoura/ecommerce-platform-project.git
+        targetRevision: HEAD
+        path: "{{path}}"
+      destination:
+        server: https://kubernetes.default.svc
+        namespace: default
+
+      syncPolicy:
+        syncOptions:
+          - CreateNamespace=true
+        automated:
+          prune: true
+          selfHeal: true

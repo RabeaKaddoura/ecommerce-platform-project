@@ -97,3 +97,12 @@ variable "secret_name" {
   type        = string
   default     = "/dev/backend/secrets"
 }
+
+
+variable "auth_secret_key" {}
+
+variable "stripe_secret_key" {}
+
+variable "stripe_publishable_key" {}
+
+variable "stripe_webhook_secret" {}

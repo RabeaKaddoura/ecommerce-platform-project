@@ -12,9 +12,14 @@ resource "aws_secretsmanager_secret" "store" { #secret store resource
 resource "aws_secretsmanager_secret_version" "values" { #populating secret store
   secret_id = aws_secretsmanager_secret.store.id
   secret_string = jsonencode({
-    username = var.db_username
-    password = var.db_password
-    host     = split(":", var.db_endpoint)[0] #removing port at the end
-    port     = tostring(var.db_port)
+    username               = var.db_username
+    password               = var.db_password
+    host                   = split(":", var.db_endpoint)[0] #removing port at the end
+    port                   = tostring(var.db_port)
+    auth_secret_key        = var.auth_secret_key
+    stripe_secret_key      = var.stripe_secret_key
+    stripe_webhook_secret  = var.stripe_webhook_secret
+    stripe_publishable_key = var.stripe_publishable_key
+
   })
 }

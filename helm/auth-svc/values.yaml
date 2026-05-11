@@ -37,8 +37,6 @@ appSecrets:
 #Service account
 serviceAccountName: backend-sa
 
-#Service account IAM role ARN
-serviceAccountRoleArn: ""
 
 #Port
 port: 8000

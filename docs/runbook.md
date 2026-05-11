@@ -100,7 +100,7 @@ kubectl port-forward svc/prometheus-server -n monitoring 4001:80
 ---
 ## 8. Database Initialization
 ```bash
-#Get DB password from Secrets Manager
+#Get DB password from Secrets Manager~
 aws secretsmanager get-secret-value --secret-id <secret store id e.g. /prod/backend/secrets> --query SecretString --output text
 
 # Connect to RDS from inside the cluster (RDS is in private subnet, not reachable locally)
