@@ -1,7 +1,7 @@
 #Image
 image:
   repository: "844586871941.dkr.ecr.us-east-1.amazonaws.com/ecom-ecr"
-  tag: "frontend-f96c96ebfbd91cf210b49b7c2713afdaab9dcfd6"
+  tag: "frontend-ac1cd36808e655800f62821b9362ec88ab2a7328"
   pullPolicy: IfNotPresent
 
 

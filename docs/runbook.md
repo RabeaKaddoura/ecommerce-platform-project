@@ -17,7 +17,7 @@ kubectl create namespace frontend
 kubectl create namespace backend
 kubectl create namespace argocd
 kubectl create namespace monitoring
-kubectl create namespace argo-rollouts
+kubectl create namespace argo-rollouts ###
 ```
 ---
 ## 3. ArgoCD Installation
@@ -34,12 +34,12 @@ kubectl port-forward -n argocd svc/argocd-server 8080:443
 ```
 Deploy application:
 ```bash
-kubectl apply -f argocd/application.yaml
+kubectl apply -f argocd/application.yaml ###        
 ```
 ---
 ## 4. ArgoCD Image Updater Installation
 ```bash
-kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj-labs/argocd-image-updater/stable/manifests/install.yaml
+kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj-labs/argocd-image-updater/stable/config/install.yaml
 ```
 Attach ECR read policy to Image Updater IAM role (ARNs are Terraform outputs):
 ```bash
