@@ -1,0 +1,111 @@
+#ImageUpdater CRs for each service. Replaces the old annotation-based approach used in Image Updater <v1.2.0.
+#Each CR watches ECR for new images matching the service tag filter and updates the corresponding ArgoCD Application's helm image.tag value.
+#Image Updater polls ECR every 2 minutes and commits the new tag back to git, which triggers ArgoCD to sync and deploy the new image.
+
+apiVersion: argocd-image-updater.argoproj.io/v1alpha1
+kind: ImageUpdater
+metadata:
+  name: auth-svc
+  namespace: argocd
+spec:
+  applicationRefs:
+    - namePattern: "auth-svc"
+  images:
+    - alias: myimage
+      imageName: 844586871941.dkr.ecr.us-east-1.amazonaws.com/ecom-ecr
+      updateStrategy:
+        strategy: newest-build
+      tagFilter: "auth-service-*"
+      helm:
+        imageNameAnnotation: image.repository
+        imageTagAnnotation: image.tag
+---
+apiVersion: argocd-image-updater.argoproj.io/v1alpha1
+kind: ImageUpdater
+metadata:
+  name: cart-svc
+  namespace: argocd
+spec:
+  applicationRefs:
+    - namePattern: "cart-svc"
+  images:
+    - alias: myimage
+      imageName: 844586871941.dkr.ecr.us-east-1.amazonaws.com/ecom-ecr
+      updateStrategy:
+        strategy: newest-build
+      tagFilter: "cart-service-*"
+      helm:
+        imageNameAnnotation: image.repository
+        imageTagAnnotation: image.tag
+---
+apiVersion: argocd-image-updater.argoproj.io/v1alpha1
+kind: ImageUpdater
+metadata:
+  name: order-svc
+  namespace: argocd
+spec:
+  applicationRefs:
+    - namePattern: "order-svc"
+  images:
+    - alias: myimage
+      imageName: 844586871941.dkr.ecr.us-east-1.amazonaws.com/ecom-ecr
+      updateStrategy:
+        strategy: newest-build
+      tagFilter: "order-service-*"
+      helm:
+        imageNameAnnotation: image.repository
+        imageTagAnnotation: image.tag
+---
+apiVersion: argocd-image-updater.argoproj.io/v1alpha1
+kind: ImageUpdater
+metadata:
+  name: payment-svc
+  namespace: argocd
+spec:
+  applicationRefs:
+    - namePattern: "payment-svc"
+  images:
+    - alias: myimage
+      imageName: 844586871941.dkr.ecr.us-east-1.amazonaws.com/ecom-ecr
+      updateStrategy:
+        strategy: newest-build
+      tagFilter: "payment-service-*"
+      helm:
+        imageNameAnnotation: image.repository
+        imageTagAnnotation: image.tag
+---
+apiVersion: argocd-image-updater.argoproj.io/v1alpha1
+kind: ImageUpdater
+metadata:
+  name: product-svc
+  namespace: argocd
+spec:
+  applicationRefs:
+    - namePattern: "product-svc"
+  images:
+    - alias: myimage
+      imageName: 844586871941.dkr.ecr.us-east-1.amazonaws.com/ecom-ecr
+      updateStrategy:
+        strategy: newest-build
+      tagFilter: "product-service-*"
+      helm:
+        imageNameAnnotation: image.repository
+        imageTagAnnotation: image.tag
+---
+apiVersion: argocd-image-updater.argoproj.io/v1alpha1
+kind: ImageUpdater
+metadata:
+  name: frontend
+  namespace: argocd
+spec:
+  applicationRefs:
+    - namePattern: "frontend"
+  images:
+    - alias: myimage
+      imageName: 844586871941.dkr.ecr.us-east-1.amazonaws.com/ecom-ecr
+      updateStrategy:
+        strategy: newest-build
+      tagFilter: "frontend-*"
+      helm:
+        imageNameAnnotation: image.repository
+        imageTagAnnotation: image.tag

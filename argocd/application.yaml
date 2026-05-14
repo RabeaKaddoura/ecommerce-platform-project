@@ -1,7 +1,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: ApplicationSet
 metadata:
-  name: apps
+  name: backend-apps
   namespace: argocd
 spec:
   generators:
@@ -16,15 +16,11 @@ spec:
             exclude: true
           - path: helm/alb
             exclude: true
+          - path: helm/frontend
+            exclude: true
   template:
     metadata:
       name: "{{path.basename}}"
-      annotations:
-        argocd-image-updater.argoproj.io/image-list: myimage=844586871941.dkr.ecr.us-east-1.amazonaws.com/ecom-ecr
-        argocd-image-updater.argoproj.io/myimage.update-strategy: newest-build
-        argocd-image-updater.argoproj.io/myimage.helm.image-name: image.repository
-        argocd-image-updater.argoproj.io/myimage.helm.image-tag: image.tag
-        argocd-image-updater.argoproj.io/myimage.filter-tags: "{{path.basename}}-*"
     spec:
       project: default
       source:
@@ -35,7 +31,40 @@ spec:
           releaseName: "{{path.basename}}"
       destination:
         server: https://kubernetes.default.svc
-        namespace: default
+        namespace: backend
+      syncPolicy:
+        syncOptions:
+          - CreateNamespace=true
+        automated:
+          prune: true
+          selfHeal: true
+---
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: frontend-apps
+  namespace: argocd
+spec:
+  generators:
+    - git:
+        repoURL: https://github.com/RabeaKaddoura/ecommerce-platform-project.git
+        revision: HEAD
+        directories:
+          - path: helm/frontend
+  template:
+    metadata:
+      name: "{{path.basename}}"
+    spec:
+      project: default
+      source:
+        repoURL: https://github.com/RabeaKaddoura/ecommerce-platform-project.git
+        targetRevision: HEAD
+        path: "{{path}}"
+        helm:
+          releaseName: "{{path.basename}}"
+      destination:
+        server: https://kubernetes.default.svc
+        namespace: frontend
       syncPolicy:
         syncOptions:
           - CreateNamespace=true
