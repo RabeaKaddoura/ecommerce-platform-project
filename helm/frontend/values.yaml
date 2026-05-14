@@ -21,8 +21,8 @@ resources:
     
 #Non-sensitive config
 config:
-  productServiceUrl: "k8s-default-albingre-7762a7ee01-195082062.us-east-1.elb.amazonaws.com"
-  stripePublishableKey: ""
+  productServiceUrl: "k8s-default-albingre-7762a7ee01-807271260.us-east-1.elb.amazonaws.com"
+  
 
 #Service account
 serviceAccountName: backend-sa
