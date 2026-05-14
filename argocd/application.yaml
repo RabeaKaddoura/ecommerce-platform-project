@@ -1,7 +1,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: ApplicationSet
 metadata:
-  name: backend-apps
+  name: apps
   namespace: argocd
 spec:
   generators:
@@ -16,8 +16,6 @@ spec:
             exclude: true
           - path: helm/alb
             exclude: true
-          - path: helm/frontend
-            exclude: true
   template:
     metadata:
       name: "{{path.basename}}"
@@ -31,43 +29,8 @@ spec:
           releaseName: "{{path.basename}}"
       destination:
         server: https://kubernetes.default.svc
-        namespace: backend
+        namespace: default
       syncPolicy:
-        syncOptions:
-          - CreateNamespace=true
-        automated:
-          prune: true
-          selfHeal: true
----
-apiVersion: argoproj.io/v1alpha1
-kind: ApplicationSet
-metadata:
-  name: frontend-apps
-  namespace: argocd
-spec:
-  generators:
-    - git:
-        repoURL: https://github.com/RabeaKaddoura/ecommerce-platform-project.git
-        revision: HEAD
-        directories:
-          - path: helm/frontend
-  template:
-    metadata:
-      name: "{{path.basename}}"
-    spec:
-      project: default
-      source:
-        repoURL: https://github.com/RabeaKaddoura/ecommerce-platform-project.git
-        targetRevision: HEAD
-        path: "{{path}}"
-        helm:
-          releaseName: "{{path.basename}}"
-      destination:
-        server: https://kubernetes.default.svc
-        namespace: frontend
-      syncPolicy:
-        syncOptions:
-          - CreateNamespace=true
         automated:
           prune: true
           selfHeal: true
