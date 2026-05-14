@@ -28,10 +28,6 @@ config:
   authServiceUrl: "http://auth-stable:8000"
   
 
-#App secrets
-appSecrets:
-  secretKey: ""
-
 
 #Service account
 serviceAccountName: backend-sa

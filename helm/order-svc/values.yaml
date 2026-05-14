@@ -22,6 +22,7 @@ hpa:
   maxReplicas: 4
   targetCPU: 70
 
+
 #Non-sensitive config
 config:
   dbName: "order_db"
@@ -29,9 +30,6 @@ config:
   authServiceUrl: "http://auth-stable:8000"
   cartServiceUrl: "http://cart-stable:8000"
 
-#App secrets
-appSecrets:
-  secretKey: ""
 
 
 #Service account

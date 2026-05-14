@@ -29,10 +29,6 @@ config:
   authServiceUrl: "http://auth-stable:8000"
   orderServiceUrl: "http://order-stable:8000"
 
-#App secrets
-appSecrets:
-  stripeSecretKey: ""
-  stripeWebhookSecret: ""
 
 
 #Service account

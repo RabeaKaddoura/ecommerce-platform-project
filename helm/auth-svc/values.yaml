@@ -29,10 +29,6 @@ config:
   accessTokenExpireMinutes: "30"
   
 
-#App secrets
-appSecrets:
-  secretKey: ""
-
 
 #Service account
 serviceAccountName: backend-sa
