@@ -10,15 +10,16 @@ metadata:
 spec:
   applicationRefs:
     - namePattern: "auth-svc"
-  images:
-    - alias: myimage
-      imageName: 844586871941.dkr.ecr.us-east-1.amazonaws.com/ecom-ecr
-      updateStrategy:
-        strategy: newest-build
-      tagFilter: "auth-service-*"
-      helm:
-        imageNameAnnotation: image.repository
-        imageTagAnnotation: image.tag
+      images:
+        - alias: myimage
+          imageName: 844586871941.dkr.ecr.us-east-1.amazonaws.com/ecom-ecr
+          commonUpdateSettings:
+            updateStrategy: newest-build
+            allowTags: "regexp:^auth-service-.*$"
+          manifestTargets:
+            helm:
+              name: image.repository
+              tag: image.tag
 ---
 apiVersion: argocd-image-updater.argoproj.io/v1alpha1
 kind: ImageUpdater
@@ -28,15 +29,16 @@ metadata:
 spec:
   applicationRefs:
     - namePattern: "cart-svc"
-  images:
-    - alias: myimage
-      imageName: 844586871941.dkr.ecr.us-east-1.amazonaws.com/ecom-ecr
-      updateStrategy:
-        strategy: newest-build
-      tagFilter: "cart-service-*"
-      helm:
-        imageNameAnnotation: image.repository
-        imageTagAnnotation: image.tag
+      images:
+        - alias: myimage
+          imageName: 844586871941.dkr.ecr.us-east-1.amazonaws.com/ecom-ecr
+          commonUpdateSettings:
+            updateStrategy: newest-build
+            allowTags: "regexp:^cart-service-.*$"
+          manifestTargets:
+            helm:
+              name: image.repository
+              tag: image.tag
 ---
 apiVersion: argocd-image-updater.argoproj.io/v1alpha1
 kind: ImageUpdater
@@ -46,15 +48,16 @@ metadata:
 spec:
   applicationRefs:
     - namePattern: "order-svc"
-  images:
-    - alias: myimage
-      imageName: 844586871941.dkr.ecr.us-east-1.amazonaws.com/ecom-ecr
-      updateStrategy:
-        strategy: newest-build
-      tagFilter: "order-service-*"
-      helm:
-        imageNameAnnotation: image.repository
-        imageTagAnnotation: image.tag
+      images:
+        - alias: myimage
+          imageName: 844586871941.dkr.ecr.us-east-1.amazonaws.com/ecom-ecr
+          commonUpdateSettings:
+            updateStrategy: newest-build
+            allowTags: "regexp:^order-service-.*$"
+          manifestTargets:
+            helm:
+              name: image.repository
+              tag: image.tag
 ---
 apiVersion: argocd-image-updater.argoproj.io/v1alpha1
 kind: ImageUpdater
@@ -64,15 +67,16 @@ metadata:
 spec:
   applicationRefs:
     - namePattern: "payment-svc"
-  images:
-    - alias: myimage
-      imageName: 844586871941.dkr.ecr.us-east-1.amazonaws.com/ecom-ecr
-      updateStrategy:
-        strategy: newest-build
-      tagFilter: "payment-service-*"
-      helm:
-        imageNameAnnotation: image.repository
-        imageTagAnnotation: image.tag
+      images:
+        - alias: myimage
+          imageName: 844586871941.dkr.ecr.us-east-1.amazonaws.com/ecom-ecr
+          commonUpdateSettings:
+            updateStrategy: newest-build
+            allowTags: "regexp:^payment-service-.*$"
+          manifestTargets:
+            helm:
+              name: image.repository
+              tag: image.tag
 ---
 apiVersion: argocd-image-updater.argoproj.io/v1alpha1
 kind: ImageUpdater
@@ -82,15 +86,16 @@ metadata:
 spec:
   applicationRefs:
     - namePattern: "product-svc"
-  images:
-    - alias: myimage
-      imageName: 844586871941.dkr.ecr.us-east-1.amazonaws.com/ecom-ecr
-      updateStrategy:
-        strategy: newest-build
-      tagFilter: "product-service-*"
-      helm:
-        imageNameAnnotation: image.repository
-        imageTagAnnotation: image.tag
+      images:
+        - alias: myimage
+          imageName: 844586871941.dkr.ecr.us-east-1.amazonaws.com/ecom-ecr
+          commonUpdateSettings:
+            updateStrategy: newest-build
+            allowTags: "regexp:^product-service-.*$"
+          manifestTargets:
+            helm:
+              name: image.repository
+              tag: image.tag
 ---
 apiVersion: argocd-image-updater.argoproj.io/v1alpha1
 kind: ImageUpdater
@@ -100,12 +105,13 @@ metadata:
 spec:
   applicationRefs:
     - namePattern: "frontend"
-  images:
-    - alias: myimage
-      imageName: 844586871941.dkr.ecr.us-east-1.amazonaws.com/ecom-ecr
-      updateStrategy:
-        strategy: newest-build
-      tagFilter: "frontend-*"
-      helm:
-        imageNameAnnotation: image.repository
-        imageTagAnnotation: image.tag
+      images:
+        - alias: myimage
+          imageName: 844586871941.dkr.ecr.us-east-1.amazonaws.com/ecom-ecr
+          commonUpdateSettings:
+            updateStrategy: newest-build
+            allowTags: "regexp:^frontend-.*$"
+          manifestTargets:
+            helm:
+              name: image.repository
+              tag: image.tag
