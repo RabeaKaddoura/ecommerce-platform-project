@@ -67,7 +67,6 @@ CREATE DATABASE product_db;
 ---
 ## 6. ArgoCD Installation
 ```bash
-kubectl create namespace argocd
 kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml --server-side --force-conflicts
 ```
 Get admin password:
@@ -85,7 +84,7 @@ kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj-labs/argoc
 ```
 Annotate Image Updater service account with IAM role ARN (Terraform output):
 ```bash
-kubectl annotate serviceaccount argocd-image-updater-controller -n argocd eks.amazonaws.com/role-arn=$(cd terraform/prod && terraform output -raw image_updater_role_arn)
+kubectl annotate serviceaccount argocd-image-updater-controller -n argocd eks.amazonaws.com/role-arn=<image_updater_role_arn>
 kubectl rollout restart deployment argocd-image-updater-controller -n argocd
 ```
 Apply ImageUpdater CRs:
@@ -93,23 +92,30 @@ Apply ImageUpdater CRs:
 kubectl apply -f argocd/image-updater.yaml
 ```
 ---
-## 8. Deploy Applications via ArgoCD
+## 8. Deploy Shared Resources
+Deploy ALB ingress and backend-common before ArgoCD takes over the rest:
+```bash
+helm install backend-common ./helm/backend-common
+helm install alb ./helm/alb
+```
+Get ALB DNS name and update frontend values.yaml productServiceUrl:
+```bash
+kubectl get ingress alb-ingress -o jsonpath='{.status.loadBalancer.ingress[0].hostname}'
+```
+---
+## 9. Update Image Tags and Deploy via ArgoCD
+Update image tags in each chart's values.yaml to match the latest ECR tags, then commit and push:
+```bash
+git add .
+git commit -m "update image tags"
+git push
+```
 Apply the ApplicationSet — ArgoCD will sync all helm charts from the repo:
 ```bash
 kubectl apply -f argocd/application.yaml
 ```
 ---
-## 9. Stripe Webhook Registration
-After ALB is provisioned, get the DNS name:
-```bash
-kubectl get ingress alb-ingress -o jsonpath='{.status.loadBalancer.ingress[0].hostname}'
-```
-Register in Stripe dashboard:
-- URL: `http://<ALB_DNS_NAME>/api/payments/webhook`
-- Events: `payment_intent.succeeded`, `payment_intent.payment_failed`
-- Copy the webhook secret and add it to AWS Secrets Manager under `stripe_webhook_secret`
----
-## 10. Prometheus Installation
+## 10. Prometheus and Grafana Installation
 ```bash
 helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
 helm repo update
@@ -118,12 +124,26 @@ Without persistence (testing):
 ```bash
 helm install monitoring prometheus-community/kube-prometheus-stack --namespace monitoring --create-namespace --set prometheus.prometheusSpec.storageSpec=null --set alertmanager.alertmanagerSpec.storage=null
 ```
-Port forward:
+Port forward Prometheus:
 ```bash
 kubectl port-forward svc/prometheus-server -n monitoring 4001:80
 ```
+Port forward Grafana:
+```bash
+kubectl port-forward svc/monitoring-grafana -n monitoring 3000:80
+```
+Get Grafana admin password:
+```bash
+kubectl get secret monitoring-grafana -n monitoring -o jsonpath="{.data.admin-password}" | base64 --decode
+```
 ---
-## 11. Promote User to Admin
+## 11. Stripe Webhook Registration
+After ALB is provisioned, register in Stripe dashboard:
+- URL: `http://<ALB_DNS_NAME>/api/payments/webhook`
+- Events: `payment_intent.succeeded`, `payment_intent.payment_failed`
+- Copy the webhook secret and add it to AWS Secrets Manager under `stripe_webhook_secret`
+---
+## 12. Promote User to Admin
 ```bash
 kubectl run psql --image=postgres:17 --restart=Never --rm -it --env=PGPASSWORD=<DB_PASSWORD> -- psql "host=<RDS_ENDPOINT> port=5432 user=<DB_USERNAME> dbname=auth_db sslmode=require"
 ```
