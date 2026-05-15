@@ -8,16 +8,16 @@ This project focuses on Kubernetes, CI/CD automation, GitOps deployments, event-
 
 # 📌 Table of Contents
 
-* 📐 [Architecture Diagram](#architecture-diagram)
-* 🧰 [Tech Stack](#tech-stack)
-* 🏗️ [Architecture](#architecture)
-* 🔄 [GitOps Workflow](#gitops-workflow)
-* 🔐 [Security](#security)
-* 📊 [Monitoring](#monitoring)
-* 🧯 [Troubleshooting & Real-World Issues](#troubleshooting--real-world-issues)
-* 🖼️ [Screenshots](#screenshots)
-* 📚 [Documentation](#documentation)
-* 🚧 [Future Improvements](#future-improvements)
+* [Architecture Diagram](#architecture-diagram)
+* [Tech Stack](#tech-stack)
+* [Architecture](#architecture)
+* [GitOps Workflow](#gitops-workflow)
+* [Security](#security)
+* [Monitoring](#monitoring)
+* [Troubleshooting & Real-World Issues](#troubleshooting--real-world-issues)
+* [Screenshots](#screenshots)
+* [Documentation](#documentation)
+* [Future Improvements](#future-improvements)
 
 ---
 
@@ -49,7 +49,7 @@ This project focuses on Kubernetes, CI/CD automation, GitOps deployments, event-
 * AWS EKS
 * AWS RDS PostgreSQL
 * AWS ECR
-* AWS ALB
+* AWS ALB Ingress Controller
 * AWS Secrets Manager
 * Terraform
 * Helm
@@ -76,20 +76,20 @@ Services communicate through:
 * Kubernetes internal networking
 * Kafka event streaming
 
-### Kafka events
+### 📡 Kafka Topics
 
-* `order.created`
-* `payment.succeeded`
-* `payment.failed`
+* order.created
+* payment.succeeded
+* payment.failed
 
-### Example flow
+### 🔁 Example Flow
 
 * order-svc → publishes `order.created`
 * cart-svc → consumes event and clears cart
 * payment-svc → publishes payment result
 * order-svc → updates order status
 
-Each service uses its own PostgreSQL database inside a shared AWS RDS instance.
+Each service uses its own PostgreSQL database hosted on a shared AWS RDS instance.
 
 ---
 
@@ -98,12 +98,12 @@ Each service uses its own PostgreSQL database inside a shared AWS RDS instance.
 1. Code pushed to GitHub
 2. GitHub Actions builds Docker images
 3. Images pushed to AWS ECR
-4. ArgoCD Image Updater detects new tags
-5. Updates committed back to Git
+4. ArgoCD Image Updater detects new image tags
+5. Updated tags committed back to Git
 6. ArgoCD syncs Helm charts
-7. Argo Rollouts executes canary deployment
+7. Argo Rollouts performs canary deployments
 
-### 🚦 Canary strategy
+### 🚦 Deployment Strategy
 
 * 10% traffic
 * 50% manual promotion
@@ -113,16 +113,50 @@ Each service uses its own PostgreSQL database inside a shared AWS RDS instance.
 
 # 🔐 Security
 
-Secrets are managed via AWS Secrets Manager and injected using:
+Security is enforced across infrastructure, network, and application layers.
 
-* CSI Secrets Store Driver
+## 🗝️ Secrets Management
+
+* AWS Secrets Manager stores all sensitive credentials
+* CSI Secrets Store Driver injects secrets into pods
 * IAM Roles for Service Accounts (IRSA)
+* No secrets stored in Git or Helm values
 
-### Benefits
+---
 
-* No secrets in Git
-* No Helm secrets exposure
-* Least-privilege access enforced
+## 🌐 Network Security
+
+* AWS Security Groups control traffic flow:
+
+  * EKS nodes allow only required traffic
+  * RDS only accessible from EKS worker nodes
+  * ALB exposed publicly for frontend/API access
+* Kubernetes services use ClusterIP for internal-only communication
+
+---
+
+## 🧑‍💻 IAM & Access Control
+
+* Least-privilege IAM roles per service
+* IRSA eliminates static AWS credentials in pods
+* Terraform manages IAM policies consistently
+
+---
+
+## ⚙️ Kubernetes Security
+
+* Dedicated service accounts per microservice
+* Namespace isolation for workload separation
+* No privileged containers
+* No hardcoded secrets in manifests
+
+---
+
+## 📦 Container Security
+
+* Images stored in AWS ECR
+* Versioned tags (no latest in production)
+* CI pipeline ensures reproducible builds
 
 ---
 
@@ -136,66 +170,82 @@ Used for:
 * Cluster health
 * Pod metrics
 * Deployment debugging
+* System observability
 
 ---
 
 # 🧯 Troubleshooting & Real-World Issues
 
-This project focuses heavily on real failure scenarios.
+This project includes real production-style failures and debugging scenarios.
 
-### ⚠️ ALB Namespace Issue
+## ⚠️ ALB Namespace Issue
 
-ALB stopped detecting services after namespace separation.
+ALB failed to detect backend services after namespace separation.
 
-Fix: moved ingress + services into same namespace.
+Fix:
 
----
-
-### ⚠️ ArgoCD Degraded Apps
-
-Missing Helm values caused template failures.
-
-Fix: migrated secrets to AWS Secrets Manager + CSI driver.
+* Ensured ingress and services were in the same namespace
 
 ---
 
-### ⚠️ Image Updater Breakage
+## ⚠️ ArgoCD Degraded Applications
 
-Annotation-based config deprecated after upgrade.
+Helm template failures due to missing required values.
 
-Fix: migrated to CRD-based ImageUpdater resources.
+Fix:
 
----
-
-### ⚠️ Kafka PVC Pending
-
-No storage class available.
-
-Fix: disabled persistence for portfolio setup.
+* Migrated secrets to AWS Secrets Manager + CSI Driver
 
 ---
 
-### ⚠️ Bitnami Kafka Removal
+## ⚠️ ArgoCD Image Updater Migration
 
-Images became unavailable.
+Broken after upgrade due to deprecated annotation system.
 
-Fix: migrated to Strimzi + Kafka 4.0 + KRaft mode.
+Fix:
 
----
-
-### ⚠️ DB Port Crash
-
-Port injected as string from secrets.
-
-Fix: casted to integer in service config.
+* Migrated to CRD-based ImageUpdater resources
 
 ---
 
-### ⚠️ IRSA Misconfiguration
+## ⚠️ Kafka PVC Pending
 
-Wrong namespace in IAM trust policy.
+No storage class available for persistent volumes.
 
-Fix: updated Terraform + trust relationship.
+Fix:
+
+* Disabled persistence for portfolio setup
+
+---
+
+## ⚠️ Kafka Image Migration
+
+Bitnami images became unavailable.
+
+Fix:
+
+* Migrated to Strimzi operator
+* Upgraded Kafka to 4.0 (KRaft mode)
+
+---
+
+## ⚠️ Database Port Type Error
+
+Backend crash due to string DB_PORT from secrets.
+
+Fix:
+
+* Cast DB_PORT to integer in service config
+
+---
+
+## ⚠️ IRSA Misconfiguration
+
+IAM role assumption failed due to wrong namespace in trust policy.
+
+Fix:
+
+* Updated IAM trust policy + Terraform configuration
 
 ---
 
@@ -209,26 +259,12 @@ Fix: updated Terraform + trust relationship.
 
 ## 📈 Grafana Dashboard
 
-![Grafana Dashboard](docs/images/grafana-dashboard.png)
+![Grafana Dashboard](docs/images/grafana-dashboard-1.png)
 
 ---
 
 # 📚 Documentation
 
-Setup and operational procedures:
+Operational setup and deployment steps:
 
 * Runbook → `docs/runbook.md`
-
----
-
-# 🚧 Future Improvements
-
-* API Gateway integration
-* Redis caching layer
-* Distributed tracing
-* Performance optimization
-* Observability upgrades
-
-
-* Event-driven systems
-* Production debugging
