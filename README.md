@@ -256,19 +256,6 @@ Fix:
 
 ---
 
-## ⚠️ Kafka PVC Pending
-
-Kafka pods stuck in `Pending` state after Strimzi install.
-
-Diagnosis:
-* Described pods — `pod has unbound immediate PersistentVolumeClaims`
-* No storage class available on the cluster
-
-Fix:
-* Reinstalled Kafka with `persistence.enabled=false`
-
----
-
 ## ⚠️ Database Port Type Error
 
 All backend services crashing on startup with `ConfigurationError: Port is not an integer`.
