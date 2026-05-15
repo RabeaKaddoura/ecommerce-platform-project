@@ -8,16 +8,17 @@ This project focuses on Kubernetes, CI/CD automation, GitOps deployments, event-
 
 # 📌 Table of Contents
 
-* [Architecture Diagram](#architecture-diagram)
-* [Tech Stack](#tech-stack)
-* [Architecture](#architecture)
-* [GitOps Workflow](#gitops-workflow)
-* [Security](#security)
-* [Monitoring](#monitoring)
-* [Troubleshooting & Real-World Issues](#troubleshooting--real-world-issues)
-* [Screenshots](#screenshots)
-* [Documentation](#documentation)
-* [Future Improvements](#future-improvements)
+- [Architecture Diagram](#architecture-diagram)
+- [Tech Stack](#tech-stack)
+- [Architecture](#architecture)
+- [GitOps Workflow](#gitops-workflow)
+- [AWS Network & High Availability Design](#aws-network--high-availability-design)
+- [Security](#security)
+- [Monitoring](#monitoring)
+- [Troubleshooting & Real-World Issues](#troubleshooting--real-world-issues)
+- [Screenshots](#screenshots)
+- [Documentation](#documentation)
+- [Future Improvements](#future-improvements)
 
 ---
 
