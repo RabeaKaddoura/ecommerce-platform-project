@@ -204,62 +204,95 @@ This project includes real production-style failures and debugging scenarios.
 
 ## ⚠️ ALB Namespace Issue
 
-ALB failed to detect backend services after namespace separation.
+ALB failed to route traffic after separating services into different namespaces.
+
+Diagnosis:
+* Checked ALB target group health in AWS console — targets showed unhealthy
+* Inspected ingress events with `kubectl describe ingress` — controller could not find backend services
 
 Fix:
-
-* Ensured ingress and services were in the same namespace
+* Reverted all services to the default namespace — ALB Ingress Controller requires the Ingress and all backend services to be in the same namespace
 
 ---
 
 ## ⚠️ ArgoCD Degraded Applications
 
-Helm template failures due to missing required values.
+ArgoCD marked services as degraded immediately after sync.
+
+Diagnosis:
+* Read ArgoCD sync error logs — showed Helm template rendering failure
+* Error pointed to `required` function failing on `appSecrets.secretKey` — value was empty string in values.yaml
 
 Fix:
-
-* Migrated secrets to AWS Secrets Manager + CSI Driver
+* Removed sensitive values from Helm entirely
+* Migrated all secrets to AWS Secrets Manager, injected via CSI Driver
 
 ---
 
 ## ⚠️ ArgoCD Image Updater Migration
 
-Broken after upgrade due to deprecated annotation system.
+Image Updater stopped detecting new ECR images after reinstall.
+
+Diagnosis:
+* Checked Image Updater logs — showed `No ImageUpdater CRs to process`
+* Discovered v1.2.0 dropped annotation-based configuration entirely
 
 Fix:
-
-* Migrated to CRD-based ImageUpdater resources
+* Migrated to CRD-based `ImageUpdater` custom resources per service with `allowTags` regex filters
 
 ---
 
-## ⚠️ Kafka Image Migration
+## ⚠️ Kafka Image Pull Failure
 
-Bitnami images became unavailable.
+Kafka pods stuck in `ImagePullBackOff`.
+
+Diagnosis:
+* Described failing pods — error showed `docker.io/bitnami/kafka: not found`
+* Bitnami moved all images behind a paid subscription
 
 Fix:
+* Switched to Strimzi operator with official Apache Kafka images
+* Updated Kafka version to 4.0 (KRaft mode, no Zookeeper)
 
-* Migrated to Strimzi operator
-* Upgraded Kafka to 4.0 (KRaft mode)
+---
+
+## ⚠️ Kafka PVC Pending
+
+Kafka pods stuck in `Pending` state after Strimzi install.
+
+Diagnosis:
+* Described pods — `pod has unbound immediate PersistentVolumeClaims`
+* No storage class available on the cluster
+
+Fix:
+* Reinstalled Kafka with `persistence.enabled=false`
 
 ---
 
 ## ⚠️ Database Port Type Error
 
-Backend crash due to string DB_PORT from secrets.
+All backend services crashing on startup with `ConfigurationError: Port is not an integer`.
+
+Diagnosis:
+* Checked pod logs with `kubectl logs` — Tortoise ORM threw exception on DB URL construction
+* Port value stored in Secrets Manager as JSON string `"5432"` not integer
 
 Fix:
-
-* Cast DB_PORT to integer in service config
+* Wrapped `os.getenv("DB_PORT")` in `int()` in all service database session files
 
 ---
 
 ## ⚠️ IRSA Misconfiguration
 
-IAM role assumption failed due to wrong namespace in trust policy.
+Pods failing to mount secrets with `AccessDenied: Not authorized to perform sts:AssumeRoleWithWebIdentity`.
+
+Diagnosis:
+* Checked pod events with `kubectl describe pod` — FailedMount error with full IAM error
+* Inspected IAM role trust policy — referenced `system:serviceaccount:webapp:backend-sa` from a previous project instead of `system:serviceaccount:default:backend-sa`
 
 Fix:
-
-* Updated IAM trust policy + Terraform configuration
+* Updated trust policy via AWS CLI immediately
+* Fixed namespace in Terraform to prevent recurrence on next apply
 
 ---
 
