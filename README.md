@@ -275,7 +275,7 @@ Pods failing to mount secrets with `AccessDenied: Not authorized to perform sts:
 
 Diagnosis:
 * Checked pod events with `kubectl describe pod` — FailedMount error with full IAM error
-* Inspected IAM role trust policy — referenced `system:serviceaccount:webapp:backend-sa` from a previous project instead of `system:serviceaccount:default:backend-sa`
+* Inspected IAM role trust policy — referenced the wrong one
 
 Fix:
 * Updated trust policy via AWS CLI immediately
