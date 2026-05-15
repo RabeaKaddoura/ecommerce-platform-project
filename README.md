@@ -1,4 +1,4 @@
-# Cloud-Native GitOps E-Commerce Microservices Platform
+# 3-Tier GitOps E-Commerce Microservices Platform
 
 A full-stack e-commerce platform built with a microservices architecture and deployed on AWS EKS using a complete GitOps workflow.
 
@@ -8,17 +8,16 @@ This project focuses on Kubernetes, CI/CD automation, GitOps deployments, event-
 
 # 📌 Table of Contents
 
-- [Architecture Diagram](#architecture-diagram)
-- [Tech Stack](#tech-stack)
-- [Architecture](#architecture)
-- [GitOps Workflow](#gitops-workflow)
-- [AWS Network & High Availability Design](#aws-network--high-availability-design)
-- [Security](#security)
-- [Monitoring](#monitoring)
-- [Troubleshooting & Real-World Issues](#troubleshooting--real-world-issues)
-- [Screenshots](#screenshots)
-- [Documentation](#documentation)
-- [Future Improvements](#future-improvements)
+- [Architecture Diagram](#-architecture-diagram)
+- [Tech Stack](#-tech-stack)
+- [Architecture](#-architecture)
+- [GitOps Workflow](#-gitops-workflow)
+- [AWS Network & High Availability Design](#-aws-network--high-availability-design)
+- [Security](#-security)
+- [Monitoring](#-monitoring)
+- [Troubleshooting & Real-World Issues](#-troubleshooting--real-world-issues)
+- [Screenshots](#-screenshots)
+- [Documentation](#-documentation)
 
 ---
 
@@ -292,3 +291,13 @@ Fix:
 Operational setup and deployment steps:
 
 * Runbook → `docs/runbook.md`
+
+---
+
+# 🚧 Future Improvements
+
+* API Gateway integration
+* Redis caching layer
+* Distributed tracing
+* Performance optimization
+* Observability upgrades
