@@ -111,6 +111,29 @@ Each service uses its own PostgreSQL database hosted on a shared AWS RDS instanc
 
 ---
 
+## 🌐 AWS Network & High Availability Design
+
+The infrastructure is deployed across:
+
+- 2 Availability Zones (Multi-AZ setup)
+
+- Public Subnets
+  - Used for AWS Application Load Balancer (ALB)
+  - Internet-facing entry point for frontend/API traffic
+
+- Private Subnets
+  - EKS worker nodes run here
+  - Backend microservices are not directly exposed to the internet
+  - AWS RDS PostgreSQL is deployed in private subnets
+
+This ensures:
+
+- High availability across multiple AZs
+- Fault tolerance if one AZ fails
+- Secure isolation of backend workloads
+
+---
+
 # 🔐 Security
 
 Security is enforced across infrastructure, network, and application layers.
