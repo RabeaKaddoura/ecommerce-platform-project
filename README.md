@@ -232,16 +232,6 @@ Fix:
 
 ---
 
-## ⚠️ Kafka PVC Pending
-
-No storage class available for persistent volumes.
-
-Fix:
-
-* Disabled persistence for portfolio setup
-
----
-
 ## ⚠️ Kafka Image Migration
 
 Bitnami images became unavailable.
