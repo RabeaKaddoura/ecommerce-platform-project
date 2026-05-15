@@ -18,6 +18,7 @@ This project focuses on Kubernetes, CI/CD automation, GitOps deployments, event-
 - [Troubleshooting & Real-World Issues](#-troubleshooting--real-world-issues)
 - [Screenshots](#-screenshots)
 - [Documentation](#-documentation)
+- [Future Improvements](#-future-improvements)
 
 ---
 
