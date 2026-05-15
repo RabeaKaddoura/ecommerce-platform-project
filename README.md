@@ -1,4 +1,4 @@
-# 🚀 Cloud-Native E-Commerce Microservices Platform
+# 🚀 Cloud-Native GitOps E-Commerce Microservices Platform
 
 A full-stack e-commerce platform built with a microservices architecture and deployed on AWS EKS using a complete GitOps workflow.
 
