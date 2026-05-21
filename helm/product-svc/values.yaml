@@ -26,6 +26,9 @@ hpa:
 config:
   dbName: "product_db"
   authServiceUrl: "http://auth-stable:8000"
+  useS3: "true"
+  s3BucketName: "<output from terraform>"
+  awsRegion: "us-east-1"
   
 
 

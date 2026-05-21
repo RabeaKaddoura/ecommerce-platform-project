@@ -51,6 +51,13 @@ spec:
           env:
             - name: DB_NAME
               value: {{ .Values.config.dbName | quote }}
+            - name: USE_S3
+              value: {{ .Values.config.useS3 | quote }}
+            - name: S3_BUCKET_NAME
+              value: {{ .Values.config.s3BucketName | quote }}
+            - name: AWS_REGION
+              value: {{ .Values.config.awsRegion | quote }}
+            
 
             - name: DB_USER
               valueFrom:
