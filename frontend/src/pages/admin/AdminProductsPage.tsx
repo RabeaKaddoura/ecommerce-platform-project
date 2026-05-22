@@ -108,7 +108,7 @@ function ProductForm({ initial, onSubmit, isPending, onCancel, title }: ProductF
                     {/*show current image from CloudFront or local dev if no new image selected*/}
                     {!preview && form.product_image && form.product_image !== 'productDefault.jpg' && (
                         <img
-                            src={getImageUrl(product.product_image)}
+                            src={getImageUrl(form.product_image)}
                             alt="current"
                             className="w-20 h-20 rounded object-cover mt-1"
                         />
