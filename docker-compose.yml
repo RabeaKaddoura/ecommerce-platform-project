@@ -57,6 +57,7 @@ services:
     depends_on:
       - postgres
       - kafka
+    restart: on-failure
 
   order-service:
     build:
@@ -100,6 +101,11 @@ services:
     container_name: frontend
     ports:
       - "80:80"
+    env_file:
+      - ./frontend/.env
+    environment:
+      STRIPE_PUBLISHABLE_KEY: ${VITE_STRIPE_PUBLISHABLE_KEY}
+      CLOUDFRONT_URL: ${VITE_CLOUDFRONT_URL}
 
 volumes:
   postgres_data:
