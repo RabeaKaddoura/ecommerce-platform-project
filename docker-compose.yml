@@ -100,9 +100,6 @@ services:
     container_name: frontend
     ports:
       - "80:80"
-    environment:
-      PRODUCT_SERVICE_URL: http://localhost:8003
-      STRIPE_PUBLISHABLE_KEY: pk_test
 
 volumes:
   postgres_data:
