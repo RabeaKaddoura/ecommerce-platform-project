@@ -9,7 +9,7 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Badge } from '@/components/ui/badge'
 import { Pencil, Trash2, Plus } from 'lucide-react'
-import { PRODUCT_SERVICE_URL } from '@/utils/config'
+import { getImageUrl } from '@/utils/config'
 
 type ProductFormData = Omit<Product, 'id'>
 
@@ -25,17 +25,28 @@ const emptyForm: ProductFormData = {
 
 interface ProductFormProps {
     initial: ProductFormData
-    onSubmit: (data: ProductFormData) => void
+    onSubmit: (data: ProductFormData, imageFile?: File) => void
     isPending: boolean
     onCancel: () => void
     title: string
 }
 
-function ProductForm({ initial, onSubmit, isPending, onCancel, title }: ProductFormProps) { //Reusable form component for CRUD operations.
+function ProductForm({ initial, onSubmit, isPending, onCancel, title }: ProductFormProps) {
     const [form, setForm] = useState<ProductFormData>(initial)
+    const [imageFile, setImageFile] = useState<File | undefined>()
+    const [preview, setPreview] = useState<string | undefined>()
 
     const set = (field: keyof ProductFormData, value: string | number) => {
         setForm((prev) => ({ ...prev, [field]: value }))
+    }
+
+    const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0]
+        if (file) {
+            setImageFile(file)
+            //show local preview before upload
+            setPreview(URL.createObjectURL(file))
+        }
     }
 
     return (
@@ -87,18 +98,27 @@ function ProductForm({ initial, onSubmit, isPending, onCancel, title }: ProductF
                     />
                 </div>
                 <div className="flex flex-col gap-1">
-                    <Label>Image Filename</Label>
-                    <Input
-                        value={form.product_image}
-                        onChange={(e) => set('product_image', e.target.value)}
-                        placeholder="productDefault.jpg"
-                    />
+                    <Label>Product Image</Label>
+                    {/*file picker instead of filename text input*/}
+                    <Input type="file" accept="image/*" onChange={handleImageChange} />
+                    {/*show preview of newly selected image*/}
+                    {preview && (
+                        <img src={preview} alt="preview" className="w-20 h-20 rounded object-cover mt-1" />
+                    )}
+                    {/*show current image from CloudFront or local dev if no new image selected*/}
+                    {!preview && form.product_image && form.product_image !== 'productDefault.jpg' && (
+                        <img
+                            src={getImageUrl(form.product_image)}
+                            alt="current"
+                            className="w-20 h-20 rounded object-cover mt-1"
+                        />
+                    )}
                     <p className="text-xs text-muted-foreground">
-                        Must match a file product service
+                        Leave empty to keep existing image
                     </p>
                 </div>
                 <div className="flex gap-2 mt-2">
-                    <Button onClick={() => onSubmit(form)} disabled={isPending} className="flex-1">
+                    <Button onClick={() => onSubmit(form, imageFile)} disabled={isPending} className="flex-1">
                         {isPending ? 'Saving...' : 'Save'}
                     </Button>
                     <Button variant="outline" onClick={onCancel} disabled={isPending}>
@@ -125,13 +145,15 @@ export default function AdminProductsPage() {
     const invalidate = () => queryClient.invalidateQueries({ queryKey: ['products'] })
 
     const { mutate: create, isPending: creating } = useMutation({
-        mutationFn: (data: ProductFormData) => createProduct(data),
+        mutationFn: ({ data, imageFile }: { data: ProductFormData; imageFile?: File }) =>
+            createProduct(data, imageFile),
         onSuccess: () => { invalidate(); setCreateOpen(false); setError('') },
         onError: (err: any) => setError(err.response?.data?.detail || 'Failed to create product'),
     })
 
     const { mutate: edit, isPending: editing } = useMutation({
-        mutationFn: (data: ProductFormData) => updateProduct(editProduct!.id, data),
+        mutationFn: ({ data, imageFile }: { data: ProductFormData; imageFile?: File }) =>
+            updateProduct(editProduct!.id, data, imageFile),
         onSuccess: () => { invalidate(); setEditProduct(null); setError('') },
         onError: (err: any) => setError(err.response?.data?.detail || 'Failed to update product'),
     })
@@ -152,7 +174,6 @@ export default function AdminProductsPage() {
 
     return (
         <div className="flex flex-col gap-6">
-            {/* Header */}
             <div className="flex items-center justify-between">
                 <div>
                     <h1 className="text-3xl font-bold">Admin — Products</h1>
@@ -166,14 +187,13 @@ export default function AdminProductsPage() {
 
             {error && <p className="text-sm text-red-500">{error}</p>}
 
-            {/* Product list */}
             <div className="flex flex-col gap-3">
                 {products?.map((product) => (
                     <Card key={product.id}>
                         <CardContent className="p-4 flex items-center justify-between gap-4">
                             <div className="flex items-center gap-4 min-w-0">
                                 <img
-                                    src={`${PRODUCT_SERVICE_URL}/static/images/${product.product_image}`}
+                                    src={getImageUrl(product.product_image)}
                                     alt={product.name}
                                     className="w-12 h-12 rounded object-cover bg-muted shrink-0"
                                 />
@@ -213,18 +233,16 @@ export default function AdminProductsPage() {
                 ))}
             </div>
 
-            {/* Create dialog */}
             <Dialog open={createOpen} onOpenChange={setCreateOpen}>
                 <ProductForm
                     title="Add Product"
                     initial={emptyForm}
-                    onSubmit={create}
+                    onSubmit={(data, imageFile) => create({ data, imageFile })}
                     isPending={creating}
                     onCancel={() => setCreateOpen(false)}
                 />
             </Dialog>
 
-            {/* Edit dialog */}
             <Dialog open={!!editProduct} onOpenChange={(open) => !open && setEditProduct(null)}>
                 {editProduct && (
                     <ProductForm
@@ -238,14 +256,13 @@ export default function AdminProductsPage() {
                             offer_expiration: editProduct.offer_expiration,
                             product_image: editProduct.product_image,
                         }}
-                        onSubmit={edit}
+                        onSubmit={(data, imageFile) => edit({ data, imageFile })}
                         isPending={editing}
                         onCancel={() => setEditProduct(null)}
                     />
                 )}
             </Dialog>
 
-            {/* Delete confirmation dialog */}
             <Dialog open={!!deleteId} onOpenChange={(open) => !open && setDeleteId(null)}>
                 <DialogContent className="max-w-sm">
                     <DialogHeader>

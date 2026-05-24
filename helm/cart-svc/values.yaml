@@ -1,7 +1,7 @@
 #Image
 image:
   repository: "844586871941.dkr.ecr.us-east-1.amazonaws.com/ecom-ecr"
-  tag: "cart-service-c5a554f759b25945821689e93090e2ec27fe9ca0"
+  tag: "cart-service-10e31e2fcd19bb889b493f57b6bcbc227a660f76"
   pullPolicy: IfNotPresent
 
 #Replicas

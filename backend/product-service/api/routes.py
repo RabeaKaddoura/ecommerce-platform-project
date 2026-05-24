@@ -1,12 +1,12 @@
-from fastapi import APIRouter, HTTPException, Depends
+from fastapi import APIRouter, HTTPException, Depends, UploadFile, File, Form
 from api.schemas import ProductCreate, ProductUpdate, ProductOut
 from fastapi.security import OAuth2PasswordBearer
-from services.product_service import (create_product, get_all_products, get_product_by_id, update_product, delete_product)
+from services.product_service import (create_product, get_all_products, get_product_by_id, update_product, delete_product, upload_image)
 import httpx
 import os
 from dotenv import load_dotenv
 
-load_dotenv() #
+load_dotenv() 
 
 AUTH_SERVICE_URL = os.getenv("AUTH_SERVICE_URL") 
  
@@ -37,9 +37,33 @@ async def delete(product_id: int, user: dict = Depends(get_current_user)):
     
 
 @router.post("/", response_model=ProductOut, status_code=201)
-async def create(data: ProductCreate, user: dict = Depends(get_current_user)):
+async def create(
+    #Form() instead of JSON body because file uploads require multipart/form-data
+    name: str = Form(...),
+    category: str = Form(...),
+    original_price: float = Form(...),
+    new_price: float = Form(...),
+    percentage_discount: int = Form(...),
+    offer_expiration: str = Form(...),
+    image: UploadFile = File(None), #Falls back to default if not provided
+    user: dict = Depends(get_current_user)
+):
     if not user["isAdmin"]:
         raise HTTPException(status_code=403, detail="Admins only")
+
+    filename = "productDefault.jpg"
+    if image:
+        filename = await upload_image(image)
+
+    data = ProductCreate(
+        name=name,
+        category=category,
+        original_price=original_price,
+        new_price=new_price,
+        percentage_discount=percentage_discount,
+        offer_expiration=offer_expiration,
+        product_image=filename
+    )
     return await create_product(data)
 
 
@@ -57,12 +81,39 @@ async def get_one(product_id: int):
 
 
 @router.put("/{product_id}", response_model=ProductOut)
-async def update(product_id: int, data: ProductUpdate, user: dict = Depends(get_current_user)):
+async def update(
+    product_id: int,
+    name: str = Form(...),
+    category: str = Form(...),
+    original_price: float = Form(...),
+    new_price: float = Form(...),
+    percentage_discount: int = Form(...),
+    offer_expiration: str = Form(...),
+    image: UploadFile = File(None), #Only upload new image if provided
+    user: dict = Depends(get_current_user)
+):
     if not user["isAdmin"]:
         raise HTTPException(status_code=403, detail="Admins only")
-    product = await update_product(product_id, data)
-    if not product:
+
+    #Keep existing image if no new one uploaded
+    existing = await get_product_by_id(product_id)
+    if not existing:
         raise HTTPException(status_code=404, detail="Product not found")
+
+    filename = existing.product_image
+    if image:
+        filename = await upload_image(image)
+
+    data = ProductUpdate(
+        name=name,
+        category=category,
+        original_price=original_price,
+        new_price=new_price,
+        percentage_discount=percentage_discount,
+        offer_expiration=offer_expiration,
+        product_image=filename
+    )
+    product = await update_product(product_id, data)
     return product
 
 

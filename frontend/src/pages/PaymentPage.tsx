@@ -1,13 +1,13 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useMemo } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { loadStripe } from '@stripe/stripe-js'
 import { Elements, PaymentElement, useStripe, useElements } from '@stripe/react-stripe-js'
 import { createPaymentIntent } from '@/api/paymentApi'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
-import { STRIPE_PUBLISHABLE_KEY } from '@/utils/config'
 
-const stripePromise = loadStripe(STRIPE_PUBLISHABLE_KEY) //Initializes Stripe's JS SDK with publishable key.
+
+
 
 //Inner form; must be inside <Elements>
 function CheckoutForm({ orderId }: { orderId: number }) {
@@ -67,6 +67,13 @@ export default function PaymentPage() {
     const [clientSecret, setClientSecret] = useState<string | null>(null)
     const [error, setError] = useState('')
     const [loading, setLoading] = useState(true)
+
+    //initialize here so it reads STRIPE_PUBLISHABLE_KEY after config.js has loaded
+    const stripePromise = useMemo(() => {
+        const key = window.__CONFIG__?.STRIPE_PUBLISHABLE_KEY ?? import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY
+        if (!key) return null
+        return loadStripe(key)
+    }, [])
 
     useEffect(() => {
         if (!orderId) return

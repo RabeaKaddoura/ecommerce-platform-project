@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button'
 import { Trash2, ShoppingCart } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { Separator } from '@/components/ui/separator'
-import { PRODUCT_SERVICE_URL } from '@/utils/config'
+import { getImageUrl } from '@/utils/config'
 
 export default function CartPage() {
     const navigate = useNavigate()
@@ -38,7 +38,7 @@ export default function CartPage() {
 
     const getProductImage = (productId: number) => {
         const image = products?.find((p) => p.id === productId)?.product_image
-        return image ? `${PRODUCT_SERVICE_URL}/static/images/${image}` : null
+        return image ? getImageUrl(image) : null
     }
 
     const total = cart?.items.reduce(

@@ -27,9 +27,10 @@ spec:
           ports:
             - containerPort: 80
           env:
-            - name: PRODUCT_SERVICE_URL
-              value: {{ .Values.config.productServiceUrl | quote }}
-            - name: STRIPE_PUBLISHABLE_KEY
+            - name: VITE_CLOUDFRONT_URL
+              value: {{ .Values.config.cloudfrontUrl | quote }}
+
+            - name: VITE_STRIPE_PUBLISHABLE_KEY
               valueFrom:
                 secretKeyRef:
                   name: backend-db-secret
