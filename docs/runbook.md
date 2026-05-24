@@ -98,13 +98,14 @@ Deploy ALB ingress and backend-common before ArgoCD takes over the rest:
 helm install backend-common ./helm/backend-common
 helm install alb ./helm/alb
 ```
-Get ALB DNS name and update frontend values.yaml productServiceUrl:
+Get ALB DNS name:
 ```bash
 kubectl get ingress alb-ingress -o jsonpath='{.status.loadBalancer.ingress[0].hostname}'
 ```
+Note: ALB DNS is no longer needed for frontend config. CloudFront URL is set via Terraform output in helm/frontend/values.yaml before deploying.
 ---
 ## 9. Update Image Tags and Deploy via ArgoCD
-Update image tags in each chart's values.yaml to match the latest ECR tags, then commit and push:
+Update image tags in each chart's values.yaml to match the latest ECR tags. CloudFront URL and S3 bucket name should already be set from Terraform outputs in helm/frontend/values.yaml and helm/product-svc/values.yaml.
 ```bash
 git add .
 git commit -m "update image tags"
