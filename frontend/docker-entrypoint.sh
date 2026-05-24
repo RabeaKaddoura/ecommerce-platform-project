@@ -2,9 +2,9 @@
 
 #Generate runtime config from environment variables
 cat <<EOF > /usr/share/nginx/html/config.js
-window.__CONFIG__ = { 
-  PRODUCT_SERVICE_URL: "${PRODUCT_SERVICE_URL}",
-  STRIPE_PUBLISHABLE_KEY: "${STRIPE_PUBLISHABLE_KEY}",
+window.__CONFIG__ = {
+  CLOUDFRONT_URL: "${CLOUDFRONT_URL:-$VITE_CLOUDFRONT_URL}",
+  STRIPE_PUBLISHABLE_KEY: "${STRIPE_PUBLISHABLE_KEY:-$VITE_STRIPE_PUBLISHABLE_KEY}"
 };
 EOF
 

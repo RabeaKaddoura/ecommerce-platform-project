@@ -3,7 +3,7 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import type { Product } from '@/types'
-import { PRODUCT_SERVICE_URL } from '@/utils/config'
+import { getImageUrl } from '@/utils/config'
 
 interface Props {
     product: Product
@@ -13,7 +13,7 @@ interface Props {
 
 export default function ProductCard({ product }: Props) {
 
-    const imageUrl = `${PRODUCT_SERVICE_URL}/static/images/${product.product_image}` //temporary 
+    const imageUrl = getImageUrl(product.product_image) //temporary 
 
     return (
         <Card className="overflow-hidden hover:shadow-lg transition-shadow">

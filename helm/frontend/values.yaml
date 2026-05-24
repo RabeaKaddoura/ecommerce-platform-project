@@ -1,7 +1,7 @@
 #Image
 image:
   repository: "844586871941.dkr.ecr.us-east-1.amazonaws.com/ecom-ecr"
-  tag: "frontend-c5a554f759b25945821689e93090e2ec27fe9ca0"
+  tag: "frontend-22ad3ece1eb914d75b2f91a8b49275db0c5a49aa"
   pullPolicy: IfNotPresent
 
 
@@ -21,7 +21,8 @@ resources:
     
 #Non-sensitive config
 config:
-  productServiceUrl: "k8s-default-albingre-7762a7ee01-516050810.us-east-1.elb.amazonaws.com"
+  cloudfrontUrl: "https://d1ge6xcpnzjijr.cloudfront.net"
+  
   
 
 #Service account

@@ -1,6 +1,6 @@
 #CSI secret ARN
 secretProvider:
-  secretArn: "arn:aws:secretsmanager:us-east-1:844586871941:secret:/prodd/backend/secrets-lXmR0L"
+  secretArn: "arn:aws:secretsmanager:us-east-1:844586871941:secret:/produ/backend/secrets-cjbNo3"
 
 #Service account IAM role ARN
 serviceAccountRoleArn: "arn:aws:iam::844586871941:role/ecom-secrets-csi-role"
