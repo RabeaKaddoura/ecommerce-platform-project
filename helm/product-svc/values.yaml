@@ -1,7 +1,7 @@
 #Image
 image:
   repository: "844586871941.dkr.ecr.us-east-1.amazonaws.com/ecom-ecr"
-  tag: "product-service-c5a554f759b25945821689e93090e2ec27fe9ca0"
+  tag: "product-service-22ad3ece1eb914d75b2f91a8b49275db0c5a49aa"
   pullPolicy: IfNotPresent
 
 #Replicas
@@ -27,7 +27,7 @@ config:
   dbName: "product_db"
   authServiceUrl: "http://auth-stable:8000"
   useS3: "true"
-  s3BucketName: "<output from terraform>"
+  s3BucketName: "ecom-product-images-prod"
   awsRegion: "us-east-1"
   
 

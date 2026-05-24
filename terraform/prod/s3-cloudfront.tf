@@ -1,5 +1,5 @@
 resource "aws_s3_bucket" "product_images" {
-  bucket = "${var.prefix}-product-images"
+  bucket = "${var.prefix}-product-images-${var.env}"
   tags = {
     Name        = "${var.prefix}-product-images"
     Environment = "${var.prefix}-${var.env}"
