@@ -312,3 +312,14 @@ Operational setup and deployment steps:
 * Distributed tracing
 * Performance optimization
 * Observability upgrades
+
+---
+
+## 👨‍💻 Author
+
+**Rabea Kaddoura**  
+DevOps & Software Engineer | Cloud Enthusiast
+
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-Connect-blue?logo=linkedin)](https://www.linkedin.com/in/rabea-kaddoura-3ab858228/)
+
+
