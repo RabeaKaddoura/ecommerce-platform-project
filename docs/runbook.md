@@ -54,7 +54,7 @@ aws secretsmanager get-secret-value --secret-id <secret-id e.g. /prod/backend/se
 ```
 Connect to RDS from inside the cluster (RDS is in private subnet, not reachable locally):
 ```bash
-kubectl run psql --image=postgres:17 --restart=Never --rm -it --env=PGPASSWORD=<DB_PASSWORD> -- psql "host=<RDS_ENDPOINT> port=5432 user=<DB_USERNAME> dbname=postgres sslmode=require"
+kubectl run psql --image=postgres:17 --restart=Never --rm -it --env='PGPASSWORD=<DB_PASSWORD>' -- psql "host=<RDS_ENDPOINT> port=5432 user=<DB_USERNAME> dbname=postgres sslmode=require"
 ```
 ```sql
 CREATE DATABASE auth_db;
@@ -146,7 +146,7 @@ After ALB is provisioned, register in Stripe dashboard:
 ---
 ## 12. Promote User to Admin
 ```bash
-kubectl run psql --image=postgres:17 --restart=Never --rm -it --env=PGPASSWORD=<DB_PASSWORD> -- psql "host=<RDS_ENDPOINT> port=5432 user=<DB_USERNAME> dbname=auth_db sslmode=require"
+kubectl run psql --image=postgres:17 --restart=Never --rm -it --env='PGPASSWORD=<DB_PASSWORD>' -- psql "host=<RDS_ENDPOINT> port=5432 user=<DB_USERNAME> dbname=auth_db sslmode=require"
 ```
 ```sql
 UPDATE users SET "isAdmin" = true WHERE email = 'your@email.com';
