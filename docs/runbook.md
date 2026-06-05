@@ -104,8 +104,8 @@ kubectl get ingress alb-ingress -o jsonpath='{.status.loadBalancer.ingress[0].ho
 ```
 Note: After getting ALB DNS, add it to terraform/prod/terraform.tfvars as alb_dns_name, then re-run terraform apply to attach it as the CloudFront ALB origin.
 ---
-## 9. Update Image Tags and Deploy via ArgoCD
-Update image tags in each chart's values.yaml to match the latest ECR tags. CloudFront URL and S3 bucket name should already be set from Terraform outputs in helm/frontend/values.yaml and helm/product-svc/values.yaml.
+## 9. Update Image Tags, Secret Store ARN, and Cloudfront URL, then Deploy via ArgoCD
+Update image tags in each chart's values.yaml to match the latest ECR tags, Secret Store ARN in backend-common chart, and CloudFront URL in frontend chart. S3 bucket name should already be set from Terraform outputs in helm/frontend/values.yaml.
 ```bash
 git add .
 git commit -m "update image tags"

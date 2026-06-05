@@ -43,7 +43,7 @@ resource "aws_iam_policy" "secrets_csi" {
         "secretsmanager:GetSecretValue",
         "secretsmanager:DescribeSecret"
       ]
-      Resource = "${module.secret_store.secretmanager_arn}"
+      Resource = "${replace(module.secret_store.secretmanager_arn, "/-[a-zA-Z0-9]{6}$/", "-*")}"
     }]
   })
 }
