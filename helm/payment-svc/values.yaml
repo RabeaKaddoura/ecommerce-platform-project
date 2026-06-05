@@ -1,7 +1,7 @@
 #Image
 image:
   repository: "844586871941.dkr.ecr.us-east-1.amazonaws.com/ecom-ecr"
-  tag: "payment-service-22ad3ece1eb914d75b2f91a8b49275db0c5a49aa"
+  tag: "payment-service-5dd3ae574fd126b37886388d3a9b163ae10fe374"
   pullPolicy: IfNotPresent
 
 #Replicas
