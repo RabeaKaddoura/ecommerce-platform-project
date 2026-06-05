@@ -102,7 +102,7 @@ Get ALB DNS name:
 ```bash
 kubectl get ingress alb-ingress -o jsonpath='{.status.loadBalancer.ingress[0].hostname}'
 ```
-Note: ALB DNS is no longer needed for frontend config. CloudFront URL is set via Terraform output in helm/frontend/values.yaml before deploying.
+Note: After getting ALB DNS, add it to terraform/prod/terraform.tfvars as alb_dns_name, then re-run terraform apply to attach it as the CloudFront ALB origin.
 ---
 ## 9. Update Image Tags and Deploy via ArgoCD
 Update image tags in each chart's values.yaml to match the latest ECR tags. CloudFront URL and S3 bucket name should already be set from Terraform outputs in helm/frontend/values.yaml and helm/product-svc/values.yaml.
@@ -140,7 +140,7 @@ kubectl get secret monitoring-grafana -n monitoring -o jsonpath="{.data.admin-pa
 ---
 ## 11. Stripe Webhook Registration
 After ALB is provisioned, register in Stripe dashboard:
-- URL: `http://<ALB_DNS_NAME>/api/payments/webhook`
+- URL: `URL: https://<CLOUDFRONT_DOMAIN>/api/payments/webhook`
 - Events: `payment_intent.succeeded`, `payment_intent.payment_failed`
 - Copy the webhook secret and add it to AWS Secrets Manager under `stripe_webhook_secret`
 ---

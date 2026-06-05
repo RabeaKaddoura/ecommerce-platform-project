@@ -95,7 +95,7 @@ variable "db_name" {
 variable "secret_name" {
   description = "secret store name"
   type        = string
-  default     = "/produ/backend/secrets"
+  default     = "/prod/backend/secrets"
 }
 
 variable "auth_secret_key" {}
@@ -105,3 +105,11 @@ variable "stripe_secret_key" {}
 variable "stripe_publishable_key" {}
 
 variable "stripe_webhook_secret" {}
+
+
+#ALB endpoint for Cloudfront
+
+variable "alb_dns_name" {
+  description = "kubectl get ingress alb-ingress -o jsonpath='{.status.loadBalancer.ingress[0].hostname}'"
+  type        = string
+}
