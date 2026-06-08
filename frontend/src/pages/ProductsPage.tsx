@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { getProducts } from '@/api/productApi'
 import ProductCard from '@/components/shared/ProductCard'
-import { Search, SlidersHorizontal } from 'lucide-react'
+import { Search } from 'lucide-react'
 
 export default function ProductsPage() {
     const [search, setSearch] = useState('')
@@ -23,7 +23,7 @@ export default function ProductsPage() {
             <div className="page-hero">
                 <p className="hero-eyebrow">Our Collection</p>
                 <h1 className="hero-title">All Products</h1>
-                <p className="hero-subtitle">Curated selections, exceptional quality</p>
+                <p className="hero-subtitle">Curated selections, exceptional quality.</p>
             </div>
 
             {/* Search bar */}
