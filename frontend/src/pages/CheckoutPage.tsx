@@ -3,9 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { createOrder } from '@/api/orderApi'
 import { getCart } from '@/api/cartApi'
 import { getProducts } from '@/api/productApi'
-import { Button } from '@/components/ui/button'
-import { Separator } from '@/components/ui/separator'
-import { ShoppingBag } from 'lucide-react'
+import { ShoppingBag, ArrowLeft } from 'lucide-react'
 
 export default function CheckoutPage() {
     const navigate = useNavigate()
@@ -22,9 +20,8 @@ export default function CheckoutPage() {
         queryFn: getProducts,
     })
 
-    const getProductName = (productId: number) => {
-        return products?.find((p) => p.id === productId)?.name ?? `Product #${productId}`
-    }
+    const getProductName = (productId: number) =>
+        products?.find((p) => p.id === productId)?.name ?? `Product #${productId}`
 
     const total = cart?.items.reduce(
         (sum, item) => sum + Number(item.price) * item.quantity, 0
@@ -39,62 +36,124 @@ export default function CheckoutPage() {
     })
 
     if (isLoading) {
-        return <div className="h-40 bg-muted rounded-lg animate-pulse" />
+        return (
+            <div className="checkout-page">
+                <div className="page-hero">
+                    <p className="hero-eyebrow">Final Step</p>
+                    <h1 className="hero-title">Checkout</h1>
+                </div>
+                <div className="cart-skeletons">
+                    {Array.from({ length: 3 }).map((_, i) => (
+                        <div key={i} className="cart-skeleton-row" />
+                    ))}
+                </div>
+            </div>
+        )
     }
 
     if (!cart || cart.items.length === 0) {
         return (
-            <div className="flex flex-col items-center gap-4 py-20">
-                <p className="text-muted-foreground">Your cart is empty.</p>
-                <Button onClick={() => navigate('/products')}>Browse Products</Button>
+            <div className="checkout-page">
+                <div className="page-hero">
+                    <p className="hero-eyebrow">Final Step</p>
+                    <h1 className="hero-title">Checkout</h1>
+                </div>
+                <div className="cart-empty">
+                    <p className="cart-empty-text">Your cart is empty</p>
+                    <button className="btn-primary" onClick={() => navigate('/products')}>
+                        Browse Products
+                    </button>
+                </div>
             </div>
         )
     }
 
     return (
-        <div className="flex flex-col gap-6 max-w-lg">
-            <h1 className="text-3xl font-bold">Checkout</h1>
-
-            {/* Order summary — clean list style */}
-            <div>
-                <h2 className="font-semibold text-lg mb-3">Order Summary</h2>
-                <div className="flex flex-col">
-                    {cart.items.map((item, index) => (
-                        <div key={item.id}>
-                            <div className="flex justify-between items-center py-3">
-                                <div className="flex flex-col gap-0.5">
-                                    <span className="font-medium">{getProductName(item.product_id)}</span>
-                                    <span className="text-sm text-muted-foreground">
-                                        Qty: {item.quantity} × ${Number(item.price).toFixed(2)}
-                                    </span>
-                                </div>
-                                <span className="font-semibold">
-                                    ${(Number(item.price) * item.quantity).toFixed(2)}
-                                </span>
-                            </div>
-                            {index < cart.items.length - 1 && <Separator />}
-                        </div>
-                    ))}
-                </div>
-
-                <Separator className="my-3" />
-
-                <div className="flex justify-between items-center">
-                    <span className="font-bold text-lg">Total</span>
-                    <span className="font-bold text-xl">${total.toFixed(2)}</span>
-                </div>
+        <div className="checkout-page">
+            {/* Hero */}
+            <div className="page-hero">
+                <p className="hero-eyebrow">Final Step</p>
+                <h1 className="hero-title">Checkout</h1>
+                <p className="hero-subtitle">Review your order before placing</p>
             </div>
 
-            {isError && (
-                <p className="text-sm text-red-500">
-                    {(error as any)?.response?.data?.detail || 'Failed to place order. Try again.'}
-                </p>
-            )}
+            <div className="checkout-layout">
+                {/* Order summary */}
+                <div className="checkout-summary-panel">
+                    <h2 className="summary-title">Order Summary</h2>
 
-            <Button size="lg" onClick={() => placeOrder()} disabled={isPending}>
-                <ShoppingBag className="w-4 h-4 mr-2" />
-                {isPending ? 'Placing Order...' : 'Place Order'}
-            </Button>
+                    <div className="checkout-items">
+                        {cart.items.map((item, index) => (
+                            <div key={item.id}>
+                                <div className="checkout-row">
+                                    <div className="checkout-row-info">
+                                        <p className="cart-item-name">{getProductName(item.product_id)}</p>
+                                        <p className="cart-item-meta">
+                                            Qty {item.quantity} &times; ${Number(item.price).toFixed(2)}
+                                        </p>
+                                    </div>
+                                    <span className="cart-item-total">
+                                        ${(Number(item.price) * item.quantity).toFixed(2)}
+                                    </span>
+                                </div>
+                                {index < cart.items.length - 1 && (
+                                    <div className="cart-divider" />
+                                )}
+                            </div>
+                        ))}
+                    </div>
+
+                    <div className="summary-divider" />
+
+                    <div className="summary-row">
+                        <span className="summary-label">Subtotal</span>
+                        <span className="summary-value">${total.toFixed(2)}</span>
+                    </div>
+                    <div className="summary-row">
+                        <span className="summary-label">Shipping</span>
+                        <span className="summary-value summary-free">Free</span>
+                    </div>
+
+                    <div className="summary-divider" />
+
+                    <div className="summary-row summary-total-row">
+                        <span className="summary-total-label">Total</span>
+                        <span className="summary-total-value">${total.toFixed(2)}</span>
+                    </div>
+                </div>
+
+                {/* Place order panel */}
+                <div className="checkout-action-panel">
+                    <h2 className="summary-title">Place Your Order</h2>
+                    <p className="checkout-notice">
+                        By placing your order you agree to our terms of service.
+                        You will be redirected to payment after confirmation.
+                    </p>
+
+                    {isError && (
+                        <p className="checkout-error">
+                            {(error as any)?.response?.data?.detail || 'Failed to place order. Please try again.'}
+                        </p>
+                    )}
+
+                    <button
+                        className="btn-primary btn-full"
+                        onClick={() => placeOrder()}
+                        disabled={isPending}
+                    >
+                        <ShoppingBag size={16} />
+                        {isPending ? 'Placing Order…' : `Place Order · $${total.toFixed(2)}`}
+                    </button>
+
+                    <button
+                        className="btn-ghost btn-full"
+                        onClick={() => navigate('/cart')}
+                    >
+                        <ArrowLeft size={15} />
+                        Back to Cart
+                    </button>
+                </div>
+            </div>
         </div>
     )
 }

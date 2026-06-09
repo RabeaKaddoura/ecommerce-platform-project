@@ -1,54 +1,53 @@
 import { useParams, useNavigate } from 'react-router-dom'
-import { useQuery } from '@tanstack/react-query'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { getProduct } from '@/api/productApi'
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
-import { ArrowLeft, Tag, Calendar } from 'lucide-react'
-import { useState } from 'react'
-import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { addItem } from '@/api/cartApi'
-import { ShoppingCart, Check } from 'lucide-react'
 import { getImageUrl } from '@/utils/config'
+import { ArrowLeft, ShoppingCart, Check, Minus, Plus, Calendar, Tag } from 'lucide-react'
+import { useState } from 'react'
 
 export default function ProductDetailPage() {
-    const { id } = useParams() //Loads value from URL path. id in this case.
+    const { id } = useParams()
     const navigate = useNavigate()
+    const queryClient = useQueryClient()
 
-    const queryClient = useQueryClient() //Querying cache
+    const [quantity, setQuantity] = useState(1)
     const [added, setAdded] = useState(false)
 
-    const { data: product, isLoading, isError } = useQuery({ //Runs automatically when component renders to fetch a product.
-        queryKey: ['product', id], //Caching
+    const { data: product, isLoading, isError } = useQuery({
+        queryKey: ['product', id],
         queryFn: () => getProduct(Number(id)),
     })
 
-
     const { mutate: addToCart, isPending } = useMutation({
-        mutationFn: () => { //Triggers when adding to cart. Calls API.
+        mutationFn: () => {
             if (!product) throw new Error('Product not found')
             return addItem({
                 product_id: product.id,
-                quantity: 1,
+                quantity,
                 price: Number(product.new_price),
             })
         },
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['cart'] }) //Removes older cache
+            queryClient.invalidateQueries({ queryKey: ['cart'] })
             setAdded(true)
-            setTimeout(() => setAdded(false), 2000)
+            setTimeout(() => {
+                setAdded(false)
+                setQuantity(1)
+            }, 2000)
         },
     })
 
-
     if (isLoading) {
         return (
-            <div className="grid md:grid-cols-2 gap-8 animate-pulse">
-                <div className="aspect-square bg-muted rounded-lg" />
-                <div className="flex flex-col gap-4">
-                    <div className="h-8 bg-muted rounded w-3/4" />
-                    <div className="h-4 bg-muted rounded w-1/4" />
-                    <div className="h-4 bg-muted rounded w-1/2" />
-                    <div className="h-10 bg-muted rounded w-1/3" />
+            <div className="detail-page">
+                <div className="detail-grid">
+                    <div className="detail-img-skeleton" />
+                    <div className="detail-info-skeleton">
+                        {Array.from({ length: 4 }).map((_, i) => (
+                            <div key={i} className="skeleton-line" style={{ width: `${[75, 30, 50, 40][i]}%` }} />
+                        ))}
+                    </div>
                 </div>
             </div>
         )
@@ -56,92 +55,119 @@ export default function ProductDetailPage() {
 
     if (isError || !product) {
         return (
-            <div className="flex flex-col items-center gap-4 py-20">
-                <p className="text-muted-foreground">Product not found.</p>
-                <Button variant="ghost" onClick={() => navigate('/products')}>
-                    Back to products
-                </Button>
+            <div className="detail-page">
+                <div className="cart-empty">
+                    <p className="cart-empty-text">Product not found.</p>
+                    <button className="btn-primary" onClick={() => navigate('/products')}>
+                        Back to Products
+                    </button>
+                </div>
             </div>
         )
     }
 
     const imageUrl = getImageUrl(product.product_image)
+    const newPrice = Number(product.new_price)
+    const originalPrice = Number(product.original_price)
+    const discount = Number(product.percentage_discount)
 
     return (
-        <div className="flex flex-col gap-6">
-            {/* Back button */}
-            <Button
-                variant="ghost"
-                className="w-fit -ml-2"
-                onClick={() => navigate(-1)}
-            >
-                <ArrowLeft className="w-4 h-4 mr-2" />
+        <div className="detail-page">
+            {/* Back */}
+            <button className="detail-back" onClick={() => navigate(-1)}>
+                <ArrowLeft size={15} />
                 Back
-            </Button>
+            </button>
 
-            <div className="grid md:grid-cols-2 gap-8">
+            <div className="detail-grid">
                 {/* Image */}
-                <div className="aspect-square bg-muted rounded-lg overflow-hidden">
-                    <img
-                        src={imageUrl}
-                        alt={product.name}
-                        className="w-full h-full object-cover"
-                    />
+                <div className="detail-img-wrap">
+                    {product.product_image ? (
+                        <img src={imageUrl} alt={product.name} className="detail-img" />
+                    ) : (
+                        <div className="detail-img-placeholder">No image</div>
+                    )}
+                    {discount > 0 && (
+                        <span className="discount-badge">−{discount}%</span>
+                    )}
                 </div>
 
-                {/* Details */}
-                <div className="flex flex-col gap-4">
-                    <div className="flex items-start justify-between gap-2">
-                        <h1 className="text-3xl font-bold">{product.name}</h1>
-                        <Badge variant="secondary">{product.category}</Badge>
-                    </div>
+                {/* Info */}
+                <div className="detail-info">
+                    <span className="card-category">{product.category}</span>
+                    <h1 className="detail-title">{product.name}</h1>
 
                     {/* Pricing */}
-                    <div className="flex items-center gap-3">
-                        <span className="text-3xl font-bold">
-                            ${Number(product.new_price).toFixed(2)}
-                        </span>
-                        <span className="text-lg text-muted-foreground line-through">
-                            ${Number(product.original_price).toFixed(2)}
-                        </span>
-                        <Badge variant="destructive">
-                            {product.percentage_discount}% off
-                        </Badge>
+                    <div className="detail-pricing">
+                        <span className="detail-price-new">${newPrice.toFixed(2)}</span>
+                        {originalPrice > newPrice && (
+                            <span className="detail-price-original">${originalPrice.toFixed(2)}</span>
+                        )}
                     </div>
 
-                    {/* Offer expiration */}
-                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                        <Calendar className="w-4 h-4" />
-                        <span>Offer expires: {product.offer_expiration}</span>
+                    {/* Meta */}
+                    <div className="detail-meta">
+                        <div className="detail-meta-row">
+                            <Calendar size={14} />
+                            <span>Offer expires {product.offer_expiration}</span>
+                        </div>
+                        <div className="detail-meta-row">
+                            <Tag size={14} />
+                            <span>{product.category}</span>
+                        </div>
                     </div>
 
-                    {/* Category */}
-                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                        <Tag className="w-4 h-4" />
-                        <span>{product.category}</span>
+                    <div className="summary-divider" />
+
+                    {/* Quantity selector */}
+                    <div className="detail-qty-section">
+                        <span className="detail-qty-label">Quantity</span>
+                        <div className="qty-control">
+                            <button
+                                className="qty-btn"
+                                onClick={() => setQuantity(q => Math.max(1, q - 1))}
+                                disabled={quantity <= 1 || isPending || added}
+                                aria-label="Decrease quantity"
+                            >
+                                <Minus size={14} />
+                            </button>
+                            <span className="qty-value">{quantity}</span>
+                            <button
+                                className="qty-btn"
+                                onClick={() => setQuantity(q => q + 1)}
+                                disabled={isPending || added}
+                                aria-label="Increase quantity"
+                            >
+                                <Plus size={14} />
+                            </button>
+                        </div>
                     </div>
 
-                    <hr className="my-2" />
+                    {/* Line total */}
+                    {quantity > 1 && (
+                        <p className="detail-line-total">
+                            Total: <strong>${(newPrice * quantity).toFixed(2)}</strong>
+                        </p>
+                    )}
 
                     {/* Add to cart */}
-                    <Button
-                        size="lg"
-                        className="w-full md:w-fit"
+                    <button
+                        className={`btn-primary btn-add-cart ${added ? 'btn-added' : ''}`}
                         onClick={() => addToCart()}
                         disabled={isPending || added}
                     >
                         {added ? (
                             <>
-                                <Check className="w-4 h-4 mr-2" />
-                                Added!
+                                <Check size={16} />
+                                Added to Cart
                             </>
                         ) : (
                             <>
-                                <ShoppingCart className="w-4 h-4 mr-2" />
-                                {isPending ? 'Adding...' : 'Add to Cart'}
+                                <ShoppingCart size={16} />
+                                {isPending ? 'Adding…' : 'Add to Cart'}
                             </>
                         )}
-                    </Button>
+                    </button>
                 </div>
             </div>
         </div>
