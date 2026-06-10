@@ -2,134 +2,167 @@ import { useParams, useNavigate, useSearchParams } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import { getOrder } from '@/api/orderApi'
 import { getProducts } from '@/api/productApi'
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
-import { Separator } from '@/components/ui/separator'
-import { ArrowLeft } from 'lucide-react'
+import { ArrowLeft, CheckCircle, XCircle, Clock, CreditCard } from 'lucide-react'
 
-const statusColor: Record<string, 'default' | 'secondary' | 'destructive'> = { //Used to change order status UI color based fetched order status.
-    pending: 'secondary',
-    confirmed: 'default',
-    shipped: 'default',
-    delivered: 'default',
-    cancelled: 'destructive',
+const statusStyles: Record<string, { label: string; className: string }> = {
+    pending: { label: 'Pending', className: 'status-pending' },
+    confirmed: { label: 'Confirmed', className: 'status-confirmed' },
+    shipped: { label: 'Shipped', className: 'status-shipped' },
+    delivered: { label: 'Delivered', className: 'status-delivered' },
+    cancelled: { label: 'Cancelled', className: 'status-cancelled' },
 }
 
 export default function OrderDetailPage() {
     const { id } = useParams()
     const navigate = useNavigate()
     const [searchParams] = useSearchParams()
-    const redirectStatus = searchParams.get('redirect_status') //Stripe appends this after redirecting back from payment
+    const redirectStatus = searchParams.get('redirect_status')
 
-    const { data: order, isLoading, isError } = useQuery({ //A state manager for getOrder request. Runs automatically when component renders to fetch specific orders.
-        queryKey: ['order', id], //Caching
+    const { data: order, isLoading, isError } = useQuery({
+        queryKey: ['order', id],
         queryFn: () => getOrder(Number(id)),
     })
 
-    const { data: products } = useQuery({ //Fetch all products to resolve product names from IDs in order items
+    const { data: products } = useQuery({
         queryKey: ['products'],
         queryFn: getProducts,
     })
 
-    const getProductName = (productId: number) => { //Looks up product name by ID, falls back to "Product #ID" if not found
-        return products?.find((p) => p.id === productId)?.name ?? `Product #${productId}`
-    }
+    const getProductName = (productId: number) =>
+        products?.find((p) => p.id === productId)?.name ?? `Product #${productId}`
 
     if (isLoading) {
-        return <div className="h-40 bg-muted rounded-lg animate-pulse" />
-    }
-
-    if (isError || !order) {
         return (
-            <div className="flex flex-col items-center gap-4 py-20">
-                <p className="text-muted-foreground">Order not found.</p>
-                <Button variant="ghost" onClick={() => navigate('/orders')}>
-                    Back to orders
-                </Button>
+            <div className="orders-page">
+                <div className="detail-img-skeleton" style={{ height: '200px', aspectRatio: 'unset' }} />
             </div>
         )
     }
 
-    return (
-        <div className="flex flex-col gap-6 max-w-lg">
-            <Button variant="ghost" className="w-fit -ml-2" onClick={() => navigate(-1)}>
-                <ArrowLeft className="w-4 h-4 mr-2" />
-                Back
-            </Button>
+    if (isError || !order) {
+        return (
+            <div className="orders-page">
+                <div className="cart-empty">
+                    <p className="cart-empty-text">Order not found.</p>
+                    <button className="btn-primary" onClick={() => navigate('/orders')}>
+                        Back to Orders
+                    </button>
+                </div>
+            </div>
+        )
+    }
 
-            <div className="flex items-center justify-between">
-                <h1 className="text-3xl font-bold">Order #{order.id}</h1>
-                <Badge variant={statusColor[order.status] ?? 'default'}>
-                    {order.status}
-                </Badge>
+    const s = statusStyles[order.status] ?? { label: order.status, className: 'status-pending' }
+
+    return (
+        <div className="orders-page">
+            <button className="detail-back" onClick={() => navigate(-1)}>
+                <ArrowLeft size={15} />
+                Back
+            </button>
+
+            {/* Header */}
+            <div className="order-detail-header">
+                <div>
+                    <p className="hero-eyebrow">Your Account</p>
+                    <h1 className="hero-title" style={{ marginBottom: '0.4rem' }}>Order #{order.id}</h1>
+                    <p className="hero-subtitle">
+                        Placed on {new Date(order.created_at).toLocaleDateString('en-US', {
+                            year: 'numeric', month: 'long', day: 'numeric'
+                        })}
+                    </p>
+                </div>
+                <span className={`order-status order-status-lg ${s.className}`}>{s.label}</span>
             </div>
 
-            <p className="text-sm text-muted-foreground -mt-4">
-                Placed on {new Date(order.created_at).toLocaleDateString()}
-            </p>
-
-            {/* Show success message if redirected from Stripe after successful payment */}
+            {/* Status banners */}
             {order.status === 'pending' && redirectStatus === 'succeeded' && (
-                <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
-                    <p className="text-green-700 font-medium">Payment successful!</p>
-                    <p className="text-sm text-green-600 mt-0.5">
-                        Your order is being confirmed, refresh in a moment.
-                    </p>
+                <div className="order-banner order-banner-success">
+                    <CheckCircle size={18} />
+                    <div>
+                        <p className="banner-title">Payment successful!</p>
+                        <p className="banner-sub">Your order is being confirmed — refresh in a moment.</p>
+                    </div>
                 </div>
             )}
 
-            {/* Show payment button only if still pending and not just redirected from Stripe */}
-            {order.status === 'pending' && redirectStatus !== 'succeeded' && (
-                <Button onClick={() => navigate(`/payment/${order.id}`)}>
-                    Complete Payment
-                </Button>
-            )}
-
             {order.status === 'confirmed' && (
-                <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
-                    <p className="text-green-700 font-medium">Order confirmed!</p>
+                <div className="order-banner order-banner-success">
+                    <CheckCircle size={18} />
+                    <div>
+                        <p className="banner-title">Order confirmed!</p>
+                        <p className="banner-sub">We're preparing your items.</p>
+                    </div>
                 </div>
             )}
 
             {order.status === 'cancelled' && (
-                <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
-                    <p className="text-red-700 font-medium">Payment failed.</p>
-                    <Button
-                        variant="outline"
-                        size="sm"
-                        className="mt-2"
+                <div className="order-banner order-banner-error">
+                    <XCircle size={18} />
+                    <div>
+                        <p className="banner-title">Payment failed.</p>
+                        <p className="banner-sub">Your order was not processed.</p>
+                    </div>
+                    <button
+                        className="btn-primary"
+                        style={{ marginLeft: 'auto', whiteSpace: 'nowrap' }}
                         onClick={() => navigate(`/payment/${order.id}`)}
                     >
+                        <CreditCard size={14} />
                         Retry Payment
-                    </Button>
+                    </button>
                 </div>
             )}
 
-            {/* Items — separator style instead of card */}
-            <div>
-                <h2 className="font-semibold text-lg mb-3">Items</h2>
-                <div className="flex flex-col">
-                    {order.items.map((item, index) => (
-                        <div key={item.id}>
-                            <div className="flex justify-between items-center py-3">
-                                <div className="flex flex-col gap-0.5">
-                                    <span className="font-medium">{getProductName(item.product_id)}</span>
-                                    <span className="text-sm text-muted-foreground">
-                                        Qty: {item.quantity} × ${Number(item.price).toFixed(2)}
+            {order.status === 'pending' && redirectStatus !== 'succeeded' && (
+                <div className="order-banner order-banner-warning">
+                    <Clock size={18} />
+                    <div>
+                        <p className="banner-title">Awaiting payment</p>
+                        <p className="banner-sub">Complete your payment to confirm this order.</p>
+                    </div>
+                    <button
+                        className="btn-primary"
+                        style={{ marginLeft: 'auto', whiteSpace: 'nowrap' }}
+                        onClick={() => navigate(`/payment/${order.id}`)}
+                    >
+                        <CreditCard size={14} />
+                        Complete Payment
+                    </button>
+                </div>
+            )}
+
+            {/* Items + summary */}
+            <div className="order-detail-layout">
+                <div className="checkout-summary-panel">
+                    <h2 className="summary-title">Items</h2>
+                    <div className="checkout-items">
+                        {order.items.map((item, index) => (
+                            <div key={item.id}>
+                                <div className="checkout-row">
+                                    <div className="checkout-row-info">
+                                        <p className="cart-item-name">{getProductName(item.product_id)}</p>
+                                        <p className="cart-item-meta">
+                                            Qty {item.quantity} &times; ${Number(item.price).toFixed(2)}
+                                        </p>
+                                    </div>
+                                    <span className="cart-item-total">
+                                        ${(Number(item.price) * item.quantity).toFixed(2)}
                                     </span>
                                 </div>
-                                <span className="font-semibold">
-                                    ${(Number(item.price) * item.quantity).toFixed(2)}
-                                </span>
+                                {index < order.items.length - 1 && (
+                                    <div className="cart-divider" />
+                                )}
                             </div>
-                            {index < order.items.length - 1 && <Separator />}
-                        </div>
-                    ))}
-                </div>
-                <Separator className="my-3" />
-                <div className="flex justify-between items-center">
-                    <span className="font-bold text-lg">Total</span>
-                    <span className="font-bold text-xl">${order.total}</span>
+                        ))}
+                    </div>
+
+                    <div className="summary-divider" />
+
+                    <div className="summary-row summary-total-row">
+                        <span className="summary-total-label">Total</span>
+                        <span className="summary-total-value">${order.total}</span>
+                    </div>
                 </div>
             </div>
         </div>

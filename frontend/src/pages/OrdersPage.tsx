@@ -1,75 +1,107 @@
 import { useQuery } from '@tanstack/react-query'
 import { getOrders } from '@/api/orderApi'
 import { useNavigate } from 'react-router-dom'
-import { Card, CardContent } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
-import { PackageSearch } from 'lucide-react'
+import { PackageSearch, ArrowRight } from 'lucide-react'
 
-const statusColor: Record<string, 'default' | 'secondary' | 'destructive'> = { //Used to change order status UI color based fetched order status.
-    pending: 'secondary',
-    confirmed: 'default',
-    shipped: 'default',
-    delivered: 'default',
-    cancelled: 'destructive',
+const statusStyles: Record<string, { label: string; className: string }> = {
+    pending: { label: 'Pending', className: 'status-pending' },
+    confirmed: { label: 'Confirmed', className: 'status-confirmed' },
+    shipped: { label: 'Shipped', className: 'status-shipped' },
+    delivered: { label: 'Delivered', className: 'status-delivered' },
+    cancelled: { label: 'Cancelled', className: 'status-cancelled' },
 }
 
 export default function OrdersPage() {
     const navigate = useNavigate()
 
-    const { data: orders, isLoading, isError } = useQuery({ //A state manager for getOrders request. Runs automatically when component renders to fetch orders.
-        queryKey: ['orders'], //Caching
+    const { data: orders, isLoading, isError } = useQuery({
+        queryKey: ['orders'],
         queryFn: getOrders,
     })
 
     if (isLoading) {
-        return <div className="flex flex-col gap-3">
-            {Array.from({ length: 3 }).map((_, i) => (
-                <div key={i} className="h-20 bg-muted rounded-lg animate-pulse" />
-            ))}
-        </div>
+        return (
+            <div className="orders-page">
+                <div className="page-hero">
+                    <p className="hero-eyebrow">Your Account</p>
+                    <h1 className="hero-title">Orders</h1>
+                </div>
+                <div className="cart-skeletons">
+                    {Array.from({ length: 3 }).map((_, i) => (
+                        <div key={i} className="cart-skeleton-row" />
+                    ))}
+                </div>
+            </div>
+        )
     }
 
     if (isError) {
-        return <p className="text-red-500">Failed to load orders.</p>
+        return (
+            <div className="orders-page">
+                <div className="page-hero">
+                    <p className="hero-eyebrow">Your Account</p>
+                    <h1 className="hero-title">Orders</h1>
+                </div>
+                <div className="empty-state">
+                    <p>Failed to load orders.</p>
+                </div>
+            </div>
+        )
     }
 
     if (!orders || orders.length === 0) {
         return (
-            <div className="flex flex-col items-center gap-4 py-20">
-                <PackageSearch className="w-12 h-12 text-muted-foreground" />
-                <p className="text-muted-foreground">No orders yet.</p>
-                <Button onClick={() => navigate('/products')}>Start Shopping</Button>
+            <div className="orders-page">
+                <div className="page-hero">
+                    <p className="hero-eyebrow">Your Account</p>
+                    <h1 className="hero-title">Orders</h1>
+                </div>
+                <div className="cart-empty">
+                    <PackageSearch size={48} strokeWidth={1} className="cart-empty-icon" />
+                    <p className="cart-empty-text">No orders yet</p>
+                    <button className="btn-primary" onClick={() => navigate('/products')}>
+                        Start Shopping
+                    </button>
+                </div>
             </div>
         )
     }
 
     return (
-        <div className="flex flex-col gap-6">
-            <h1 className="text-3xl font-bold">Your Orders</h1>
-            <div className="flex flex-col gap-3">
-                {orders.map((order) => (
-                    <Card
-                        key={order.id}
-                        className="cursor-pointer hover:shadow-md transition-shadow"
-                        onClick={() => navigate(`/orders/${order.id}`)}
-                    >
-                        <CardContent className="p-4 flex items-center justify-between">
-                            <div className="flex flex-col gap-1">
-                                <span className="font-medium">Order #{order.id}</span>
-                                <span className="text-sm text-muted-foreground">
-                                    {new Date(order.created_at).toLocaleDateString()} · {order.items.length} item(s)
+        <div className="orders-page">
+            <div className="page-hero">
+                <p className="hero-eyebrow">Your Account</p>
+                <h1 className="hero-title">Orders</h1>
+                <p className="hero-subtitle">{orders.length} {orders.length === 1 ? 'order' : 'orders'}</p>
+            </div>
+
+            <div className="orders-list">
+                {orders.map((order) => {
+                    const s = statusStyles[order.status] ?? { label: order.status, className: 'status-pending' }
+                    return (
+                        <div
+                            key={order.id}
+                            className="order-row"
+                            onClick={() => navigate(`/orders/${order.id}`)}
+                        >
+                            <div className="order-row-left">
+                                <span className="order-number">Order #{order.id}</span>
+                                <span className="order-meta">
+                                    {new Date(order.created_at).toLocaleDateString('en-US', {
+                                        year: 'numeric', month: 'long', day: 'numeric'
+                                    })}
+                                    &nbsp;·&nbsp;
+                                    {order.items.length} {order.items.length === 1 ? 'item' : 'items'}
                                 </span>
                             </div>
-                            <div className="flex items-center gap-3">
-                                <span className="font-bold">${order.total}</span>
-                                <Badge variant={statusColor[order.status] ?? 'default'}>
-                                    {order.status}
-                                </Badge>
+                            <div className="order-row-right">
+                                <span className="order-total">${order.total}</span>
+                                <span className={`order-status ${s.className}`}>{s.label}</span>
+                                <ArrowRight size={15} className="order-arrow" />
                             </div>
-                        </CardContent>
-                    </Card>
-                ))}
+                        </div>
+                    )
+                })}
             </div>
         </div>
     )
