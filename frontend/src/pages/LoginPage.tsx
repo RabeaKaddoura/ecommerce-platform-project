@@ -2,16 +2,14 @@ import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { useAuthStore } from '@/store/authStore'
 import { login, getMe } from '@/api/authApi'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Eye, EyeOff } from 'lucide-react'
 
 export default function LoginPage() {
     const navigate = useNavigate()
     const { setAuth } = useAuthStore()
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
+    const [showPassword, setShowPassword] = useState(false)
     const [error, setError] = useState('')
     const [loading, setLoading] = useState(false)
 
@@ -20,11 +18,11 @@ export default function LoginPage() {
         setError('')
         try {
             if (!email || !password) {
-                setError('You must enter all fields')
+                setError('Please enter your email and password')
                 return
             }
             const token = await login({ email, password })
-            localStorage.setItem('token', token) //set before getMe so interceptor picks it up
+            localStorage.setItem('token', token)
             const user = await getMe()
             setAuth(user, token)
             navigate('/')
@@ -36,41 +34,77 @@ export default function LoginPage() {
         }
     }
 
+    const handleKeyDown = (e: React.KeyboardEvent) => {
+        if (e.key === 'Enter') handleLogin()
+    }
+
     return (
-        <div className="min-h-screen flex items-center justify-center bg-background">
-            <Card className="w-full max-w-md">
-                <CardHeader>
-                    <CardTitle className="text-2xl text-center">Login</CardTitle>
-                </CardHeader>
-                <CardContent className="flex flex-col gap-4">
-                    <div className="flex flex-col gap-1">
-                        <Label>Email</Label>
-                        <Input
+        <div className="auth-page">
+            <div className="auth-panel">
+                {/* Brand */}
+                <div className="auth-brand">
+                    <p className="hero-eyebrow">Welcome back</p>
+                    <h1 className="auth-title">Sign In</h1>
+                    <p className="auth-subtitle">Enter your credentials to continue</p>
+                </div>
+
+                {/* Form */}
+                <div className="auth-form">
+                    <div className="auth-field">
+                        <label className="auth-label">Email</label>
+                        <input
+                            className="auth-input"
                             type="email"
+                            placeholder="you@example.com"
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
-                            placeholder="you@example.com"
+                            onKeyDown={handleKeyDown}
+                            autoComplete="email"
                         />
                     </div>
-                    <div className="flex flex-col gap-1">
-                        <Label>Password</Label>
-                        <Input
-                            type="password"
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                            placeholder="••••••••"
-                        />
+
+                    <div className="auth-field">
+                        <label className="auth-label">Password</label>
+                        <div className="auth-input-wrap">
+                            <input
+                                className="auth-input"
+                                type={showPassword ? 'text' : 'password'}
+                                placeholder="••••••••"
+                                value={password}
+                                onChange={(e) => setPassword(e.target.value)}
+                                onKeyDown={handleKeyDown}
+                                autoComplete="current-password"
+                            />
+                            <button
+                                className="auth-eye"
+                                type="button"
+                                onClick={() => setShowPassword(s => !s)}
+                                tabIndex={-1}
+                                aria-label={showPassword ? 'Hide password' : 'Show password'}
+                            >
+                                {showPassword ? <EyeOff size={15} /> : <Eye size={15} />}
+                            </button>
+                        </div>
                     </div>
-                    {error && <p className="text-sm text-red-500">{error}</p>}
-                    <Button onClick={handleLogin} disabled={loading}>
-                        {loading ? 'Logging in...' : 'Login'}
-                    </Button>
-                    <p className="text-sm text-center text-muted-foreground">
-                        Don't have an account?{' '}
-                        <Link to="/register" className="underline">Register</Link>
-                    </p>
-                </CardContent>
-            </Card>
+
+                    {error && <p className="auth-error">{error}</p>}
+
+                    <button
+                        className="btn-primary btn-full auth-submit"
+                        onClick={handleLogin}
+                        disabled={loading}
+                    >
+                        {loading ? 'Signing in…' : 'Sign In'}
+                    </button>
+                </div>
+
+                <p className="auth-switch">
+                    Don't have an account?{' '}
+                    <Link to="/register" className="auth-link">Create one</Link>
+                </p>
+            </div>
+
+
         </div>
     )
 }

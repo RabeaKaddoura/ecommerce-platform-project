@@ -1,16 +1,14 @@
 import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { register } from '@/api/authApi'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Eye, EyeOff } from 'lucide-react'
 
 export default function RegisterPage() {
     const navigate = useNavigate()
     const [name, setName] = useState('')
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
+    const [showPassword, setShowPassword] = useState(false)
     const [error, setError] = useState('')
     const [loading, setLoading] = useState(false)
 
@@ -18,8 +16,8 @@ export default function RegisterPage() {
         setLoading(true)
         setError('')
         try {
-            if (!email || !password || !name) {
-                setError('You must enter all fields')
+            if (!name || !email || !password) {
+                setError('Please fill in all fields')
                 return
             }
             await register({ name, email, password })
@@ -32,50 +30,90 @@ export default function RegisterPage() {
         }
     }
 
+    const handleKeyDown = (e: React.KeyboardEvent) => {
+        if (e.key === 'Enter') handleRegister()
+    }
+
     return (
-        <div className="min-h-screen flex items-center justify-center bg-background">
-            <Card className="w-full max-w-md">
-                <CardHeader>
-                    <CardTitle className="text-2xl text-center">Register</CardTitle>
-                </CardHeader>
-                <CardContent className="flex flex-col gap-4">
-                    <div className="flex flex-col gap-1">
-                        <Label>Name</Label>
-                        <Input
+        <div className="auth-page">
+            <div className="auth-panel">
+                {/* Brand */}
+                <div className="auth-brand">
+                    <p className="hero-eyebrow">Get started</p>
+                    <h1 className="auth-title">Create Account</h1>
+                    <p className="auth-subtitle">Join us and start shopping</p>
+                </div>
+
+                {/* Form */}
+                <div className="auth-form">
+                    <div className="auth-field">
+                        <label className="auth-label">Full Name</label>
+                        <input
+                            className="auth-input"
                             type="text"
+                            placeholder="John Doe"
                             value={name}
                             onChange={(e) => setName(e.target.value)}
-                            placeholder="John Doe"
+                            onKeyDown={handleKeyDown}
+                            autoComplete="name"
                         />
                     </div>
-                    <div className="flex flex-col gap-1">
-                        <Label>Email</Label>
-                        <Input
+
+                    <div className="auth-field">
+                        <label className="auth-label">Email</label>
+                        <input
+                            className="auth-input"
                             type="email"
+                            placeholder="you@example.com"
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
-                            placeholder="you@example.com"
+                            onKeyDown={handleKeyDown}
+                            autoComplete="email"
                         />
                     </div>
-                    <div className="flex flex-col gap-1">
-                        <Label>Password</Label>
-                        <Input
-                            type="password"
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                            placeholder="••••••••"
-                        />
+
+                    <div className="auth-field">
+                        <label className="auth-label">Password</label>
+                        <div className="auth-input-wrap">
+                            <input
+                                className="auth-input"
+                                type={showPassword ? 'text' : 'password'}
+                                placeholder="••••••••"
+                                value={password}
+                                onChange={(e) => setPassword(e.target.value)}
+                                onKeyDown={handleKeyDown}
+                                autoComplete="new-password"
+                            />
+                            <button
+                                className="auth-eye"
+                                type="button"
+                                onClick={() => setShowPassword(s => !s)}
+                                tabIndex={-1}
+                                aria-label={showPassword ? 'Hide password' : 'Show password'}
+                            >
+                                {showPassword ? <EyeOff size={15} /> : <Eye size={15} />}
+                            </button>
+                        </div>
                     </div>
-                    {error && <p className="text-sm text-red-500">{error}</p>}
-                    <Button onClick={handleRegister} disabled={loading}>
-                        {loading ? 'Registering...' : 'Register'}
-                    </Button>
-                    <p className="text-sm text-center text-muted-foreground">
-                        Already have an account?{' '}
-                        <Link to="/login" className="underline">Login</Link>
-                    </p>
-                </CardContent>
-            </Card>
+
+                    {error && <p className="auth-error">{error}</p>}
+
+                    <button
+                        className="btn-primary btn-full auth-submit"
+                        onClick={handleRegister}
+                        disabled={loading}
+                    >
+                        {loading ? 'Creating account…' : 'Create Account'}
+                    </button>
+                </div>
+
+                <p className="auth-switch">
+                    Already have an account?{' '}
+                    <Link to="/login" className="auth-link">Sign in</Link>
+                </p>
+            </div>
+
+
         </div>
     )
 }
