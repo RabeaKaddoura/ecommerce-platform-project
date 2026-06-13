@@ -35,6 +35,7 @@ This project focuses on Kubernetes, CI/CD automation, GitOps deployments, event-
 * FastAPI
 * Tortoise ORM
 * PostgreSQL
+* Redis
 * Kafka (Strimzi)
 * Stripe
 
@@ -50,6 +51,7 @@ This project focuses on Kubernetes, CI/CD automation, GitOps deployments, event-
 * AWS EKS
 * AWS RDS PostgreSQL
 * AWS ECR
+* AWS CloudFront
 * AWS ALB Ingress Controller
 * AWS Secrets Manager
 * Terraform
@@ -64,7 +66,7 @@ This project focuses on Kubernetes, CI/CD automation, GitOps deployments, event-
 
 # 🏗️ Architecture
 
-The platform consists of 5 backend microservices:
+The platform consists of 5 backend microservices deployed on Amazon EKS::
 
 * auth-svc
 * cart-svc
@@ -72,10 +74,17 @@ The platform consists of 5 backend microservices:
 * product-svc
 * payment-svc
 
+
+Supporting platform components include:
+
+* Redis for caching
+* Kafka for event-driven communication
+
 Services communicate through:
 
 * Kubernetes internal networking
 * Kafka event streaming
+* Redis caching for product data acceleration
 
 ### 📡 Kafka Topics
 
@@ -91,6 +100,19 @@ Services communicate through:
 * order-svc → updates order status
 
 Each service uses its own PostgreSQL database hosted on a shared AWS RDS instance.
+
+### ⚡ Caching Layer
+
+Redis runs as a pod inside the EKS cluster and is used by `product-svc` as a caching layer.
+
+Flow:
+
+1. product-svc checks Redis for cached product data
+2. On cache hit, data is returned immediately
+3. On cache miss, product-svc queries PostgreSQL
+4. Retrieved data is stored in Redis for subsequent requests
+
+This reduces database load and improves product retrieval latency.
 
 ---
 
@@ -132,6 +154,24 @@ This ensures:
 - High availability across multiple AZs
 - Fault tolerance if one AZ fails
 - Secure isolation of backend workloads
+
+---
+
+## 🚀 Content Delivery
+
+AWS CloudFront is used to improve performance and reduce latency for globally distributed users.
+
+CloudFront serves:
+
+* Product images
+* Frontend static assets
+
+Benefits:
+
+* Lower response times through edge caching
+* Reduced load on origin services
+* Improved user experience for image-heavy pages
+* Better scalability during traffic spikes
 
 ---
 
@@ -308,7 +348,6 @@ Operational setup and deployment steps:
 # 🚧 Future Improvements
 
 * API Gateway integration
-* Redis caching layer
 * Distributed tracing
 * Performance optimization
 * Observability upgrades
