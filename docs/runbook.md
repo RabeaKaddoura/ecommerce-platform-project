@@ -103,6 +103,21 @@ Get ALB DNS name:
 kubectl get ingress alb-ingress -o jsonpath='{.status.loadBalancer.ingress[0].hostname}'
 ```
 Note: After getting ALB DNS, add it to terraform/prod/terraform.tfvars as alb_dns_name, then re-run terraform apply to attach it as the CloudFront ALB origin.
+
+---
+## 8b. Deploy Redis (manual, like backend-common/alb)
+```bash
+helm repo add bitnami https://charts.bitnami.com/bitnami
+helm repo update
+helm install redis bitnami/redis \
+  --set auth.enabled=false \
+  --set architecture=standalone \
+  --set master.persistence.enabled=false \
+  -n default
+
+# Verify
+kubectl get svc -n default | grep redis
+```
 ---
 ## 9. Update Image Tags, Secret Store ARN, and Cloudfront URL, then Deploy via ArgoCD
 Update image tags in each chart's values.yaml to match the latest ECR tags, Secret Store ARN in backend-common chart, and CloudFront URL in frontend chart. S3 bucket name should already be set from Terraform outputs in helm/frontend/values.yaml.
