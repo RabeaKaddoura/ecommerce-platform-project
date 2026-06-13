@@ -37,7 +37,7 @@ jobs:
           #nginx.prod.conf is used here for production nginx config.
         run: | 
           docker build \
-            --build-arg NGINX_CONF=nginx.prod.conf \ 
+            --build-arg NGINX_CONF=nginx.prod.conf \
             -t $ECR_REGISTRY/$ECR_REPOSITORY:frontend-$IMAGE_TAG \
             ./frontend
           echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:frontend-$IMAGE_TAG" >> $GITHUB_OUTPUT
