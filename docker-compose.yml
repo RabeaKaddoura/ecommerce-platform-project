@@ -93,6 +93,11 @@ services:
       - ./backend/product-service/.env
     depends_on:
       - postgres
+      - redis
+
+  redis:
+    image: redis:7-alpine
+    restart: on-failure
 
   #Frontend
   frontend:
