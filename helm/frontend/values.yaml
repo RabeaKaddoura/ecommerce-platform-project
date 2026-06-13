@@ -1,7 +1,7 @@
 #Image
 image:
   repository: "844586871941.dkr.ecr.us-east-1.amazonaws.com/ecom-ecr"
-  tag: "frontend-5dd3ae574fd126b37886388d3a9b163ae10fe374"
+  tag: "frontend-5102c6cfddfb05261f9c9a38caba1c74e185d381"
   pullPolicy: IfNotPresent
 
 
@@ -21,7 +21,7 @@ resources:
     
 #Non-sensitive config
 config:
-  cloudfrontUrl: "https://d1t81nl35hclu2.cloudfront.net" 
+  cloudfrontUrl: "https://d2u9zgcdtzmm1f.cloudfront.net" 
   
   
 
