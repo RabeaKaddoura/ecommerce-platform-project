@@ -29,6 +29,7 @@ config:
   useS3: "true"
   s3BucketName: "ecom-product-images-prod"
   awsRegion: "us-east-1"
+  redisURL: "redis://redis-master.default.svc.cluster.local:6379"
   
 
 

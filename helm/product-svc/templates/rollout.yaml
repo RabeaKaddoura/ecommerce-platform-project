@@ -57,6 +57,8 @@ spec:
               value: {{ .Values.config.s3BucketName | quote }}
             - name: AWS_REGION
               value: {{ .Values.config.awsRegion | quote }}
+            - name: REDIS_URL
+              value: {{ .Values.config.redisURL | quote }}
             
 
             - name: DB_USER
