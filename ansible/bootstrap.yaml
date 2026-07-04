@@ -1,4 +1,3 @@
-#ansible/bootstrap.yml
 #Automates full EKS cluster bootstrap after terraform apply.
 #Covers: namespaces, argo-rollouts, kafka, argocd, image-updater, shared helm charts, redis, prometheus+grafana.
 #Run from repo root: ansible-playbook ansible/bootstrap.yml
@@ -12,7 +11,7 @@
     #── Fill these in before running ────────────────
     aws_region: "us-east-1"
     cluster_name: "ecom-cluster"
-    image_updater_role_arn: "arn:aws:iam::<YOUR_ACCOUNT_ID>:role/ecom-image-updater-role"
+    image_updater_role_arn: "arn:aws:iam::844586871941:role/ecom-image-updater-role" #terraform output
     #────────────────────────────────────────────────
 
   tasks:
@@ -128,38 +127,6 @@
       command: helm install alb ./helm/alb
       ignore_errors: true
 
-    # ── Step 7b: Wait for ALB and print DNS ───────
-    # ALB takes time to provision after helm install
-    # We wait then print the DNS so you can add it to terraform.tfvars
-    - name: Wait for ALB ingress to get a hostname (up to 3 minutes)
-      shell: |
-        for i in $(seq 1 18); do
-          HOSTNAME=$(kubectl get ingress alb-ingress -o jsonpath='{.status.loadBalancer.ingress[0].hostname}' 2>/dev/null)
-          if [ -n "$HOSTNAME" ]; then
-            echo "$HOSTNAME"
-            exit 0
-          fi
-          sleep 10
-        done
-        echo "TIMEOUT"
-        exit 1
-      register: alb_dns
-
-    - name: Print ALB DNS — add this to terraform/prod/terraform.tfvars as alb_dns_name
-      debug:
-        msg: |
-          ─────────────────────────────────────────────────
-          ALB DNS: {{ alb_dns.stdout }}
-          Add to terraform/prod/terraform.tfvars:
-            alb_dns_name = "{{ alb_dns.stdout }}"
-          Then run: cd terraform/prod && terraform apply
-          Press Ctrl+C then 'C' to continue after apply is done,
-          or re-run the playbook with --tags post-alb
-          ─────────────────────────────────────────────────
-
-    - name: Pause — run terraform apply with alb_dns_name then press Enter to continue
-      pause:
-        prompt: "Run terraform apply now, then press Enter to continue"
 
     # ── Step 8: Redis ─────────────────────────────
     - name: Add bitnami helm repo
@@ -201,10 +168,14 @@
       debug:
         msg: |
           ─────────────────────────────────────────────────
-          Cluster bootstrap complete.
+           Cluster bootstrap complete.
           Remaining manual steps:
-          1. Update image tags in helm charts values.yaml
-          2. kubectl apply -f argocd/application.yaml
-          3. Register Stripe webhook at https://<CLOUDFRONT_DOMAIN>/api/payments/webhook
-          4. Promote admin user via kubectl run psql ...
+          1. Get ALB DNS:
+             kubectl get ingress alb-ingress -o jsonpath='{.status.loadBalancer.ingress[0].hostname}'
+          2. Add it to terraform/prod/terraform.tfvars as alb_dns_name
+          3. Run: cd terraform/prod && terraform apply
+          4. Update image tags in helm charts values.yaml
+          5. kubectl apply -f argocd/application.yaml
+          6. Register Stripe webhook at https://<CLOUDFRONT_DOMAIN>/api/payments/webhook
+          7. Promote admin user via kubectl run psql ...
           ─────────────────────────────────────────────────
