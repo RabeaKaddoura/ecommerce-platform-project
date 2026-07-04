@@ -12,6 +12,7 @@
     aws_region: "us-east-1"
     cluster_name: "ecom-cluster"
     image_updater_role_arn: "arn:aws:iam::844586871941:role/ecom-image-updater-role" #terraform output
+    repo_root: "/mnt/c/Web-Apps/Proj3"  #absolute path to repo root
     #────────────────────────────────────────────────
 
   tasks:
@@ -66,14 +67,10 @@
         --timeout=120s
 
     - name: Apply Kafka cluster manifest
-      command: kubectl apply -f helm/kafka.yaml
+      command: kubectl apply -f {{ repo_root }}/helm/kafka.yaml
+      
 
-    - name: Wait for Kafka to be ready
-      command: >
-        kubectl wait kafka/kafka
-        --for=condition=Ready
-        --timeout=300s
-        -n default
+    
 
     # ── Step 5: ArgoCD ────────────────────────────
     - name: Install ArgoCD
@@ -104,11 +101,12 @@
         --timeout=120s
 
     - name: Annotate Image Updater service account with IAM role
+      # Safe to re-run — --overwrite means it won't fail if annotation already exists
       command: >
         kubectl annotate serviceaccount argocd-image-updater-controller
         -n argocd
         eks.amazonaws.com/role-arn={{ image_updater_role_arn }}
-        --overwrite  #Safe to re-run, overwrites existing annotation
+        --overwrite
 
     - name: Restart Image Updater to pick up new annotation
       command: >
@@ -116,15 +114,15 @@
         -n argocd
 
     - name: Apply ImageUpdater CRs
-      command: kubectl apply -f argocd/image-updater.yaml
+      command: kubectl apply -f {{ repo_root }}/argocd/image-updater.yaml
 
     # ── Step 7: Shared Helm charts ────────────────
     - name: Install backend-common
-      command: helm install backend-common ./helm/backend-common
+      command: helm install backend-common {{ repo_root }}/helm/backend-common
       ignore_errors: true  #Ignore if already installed
 
     - name: Install ALB ingress
-      command: helm install alb ./helm/alb
+      command: helm install alb {{ repo_root }}/helm/alb
       ignore_errors: true
 
 
