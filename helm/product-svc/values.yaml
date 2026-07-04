@@ -1,7 +1,7 @@
 #Image
 image:
   repository: "844586871941.dkr.ecr.us-east-1.amazonaws.com/ecom-ecr"
-  tag: "product-service-a4d516e8947f65cf14dc6e9e6f5b864aa7786e54"
+  tag: "product-service-c6dd074e9970baf9a5cf2f66bd0a21fe96006a32"
   pullPolicy: IfNotPresent
 
 #Replicas
