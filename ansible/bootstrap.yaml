@@ -1,0 +1,210 @@
+#ansible/bootstrap.yml
+#Automates full EKS cluster bootstrap after terraform apply.
+#Covers: namespaces, argo-rollouts, kafka, argocd, image-updater, shared helm charts, redis, prometheus+grafana.
+#Run from repo root: ansible-playbook ansible/bootstrap.yml
+---
+- name: Bootstrap EKS Cluster
+  hosts: localhost
+  connection: local
+  gather_facts: false
+
+  vars:
+    #── Fill these in before running ────────────────
+    aws_region: "us-east-1"
+    cluster_name: "ecom-cluster"
+    image_updater_role_arn: "arn:aws:iam::<YOUR_ACCOUNT_ID>:role/ecom-image-updater-role"
+    #────────────────────────────────────────────────
+
+  tasks:
+
+    # ── Step 1: Update kubeconfig ──────────────────
+    - name: Update kubeconfig for EKS cluster
+      command: >
+        aws eks update-kubeconfig
+        --region {{ aws_region }}
+        --name {{ cluster_name }}
+
+    # ── Step 2: Create namespaces ──────────────────
+    - name: Create argocd namespace
+      command: kubectl create namespace argocd
+      ignore_errors: true  #Ignore if namespace already exists
+
+    - name: Create argo-rollouts namespace
+      command: kubectl create namespace argo-rollouts
+      ignore_errors: true
+
+    - name: Create monitoring namespace
+      command: kubectl create namespace monitoring
+      ignore_errors: true
+
+    # ── Step 3: Argo Rollouts ──────────────────────
+    # Must be installed before ArgoCD so Rollout CRDs exist when ArgoCD syncs
+    - name: Add argo helm repo
+      command: helm repo add argo https://argoproj.github.io/argo-helm
+
+    - name: Update helm repos
+      command: helm repo update
+
+    - name: Install Argo Rollouts
+      command: >
+        helm install argo-rollouts argo/argo-rollouts
+        -n argo-rollouts
+        --create-namespace
+      ignore_errors: true  #Ignore if already installed
+
+    # ── Step 4: Kafka (Strimzi) ───────────────────
+    - name: Install Strimzi operator
+      command: >
+        kubectl apply
+        -f https://strimzi.io/install/latest?namespace=default
+        -n default
+
+    - name: Wait for Strimzi operator to be running
+      command: >
+        kubectl wait deployment/strimzi-cluster-operator
+        -n default
+        --for=condition=available
+        --timeout=120s
+
+    - name: Apply Kafka cluster manifest
+      command: kubectl apply -f helm/kafka.yaml
+
+    - name: Wait for Kafka to be ready
+      command: >
+        kubectl wait kafka/kafka
+        --for=condition=Ready
+        --timeout=300s
+        -n default
+
+    # ── Step 5: ArgoCD ────────────────────────────
+    - name: Install ArgoCD
+      command: >
+        kubectl apply -n argocd
+        -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
+        --server-side
+        --force-conflicts
+
+    - name: Wait for ArgoCD server to be ready
+      command: >
+        kubectl wait deployment/argocd-server
+        -n argocd
+        --for=condition=available
+        --timeout=180s
+
+    # ── Step 6: ArgoCD Image Updater ──────────────
+    - name: Install ArgoCD Image Updater
+      command: >
+        kubectl apply -n argocd
+        -f https://raw.githubusercontent.com/argoproj-labs/argocd-image-updater/stable/config/install.yaml
+
+    - name: Wait for Image Updater to be ready
+      command: >
+        kubectl wait deployment/argocd-image-updater-controller
+        -n argocd
+        --for=condition=available
+        --timeout=120s
+
+    - name: Annotate Image Updater service account with IAM role
+      command: >
+        kubectl annotate serviceaccount argocd-image-updater-controller
+        -n argocd
+        eks.amazonaws.com/role-arn={{ image_updater_role_arn }}
+        --overwrite  #Safe to re-run, overwrites existing annotation
+
+    - name: Restart Image Updater to pick up new annotation
+      command: >
+        kubectl rollout restart deployment/argocd-image-updater-controller
+        -n argocd
+
+    - name: Apply ImageUpdater CRs
+      command: kubectl apply -f argocd/image-updater.yaml
+
+    # ── Step 7: Shared Helm charts ────────────────
+    - name: Install backend-common
+      command: helm install backend-common ./helm/backend-common
+      ignore_errors: true  #Ignore if already installed
+
+    - name: Install ALB ingress
+      command: helm install alb ./helm/alb
+      ignore_errors: true
+
+    # ── Step 7b: Wait for ALB and print DNS ───────
+    # ALB takes time to provision after helm install
+    # We wait then print the DNS so you can add it to terraform.tfvars
+    - name: Wait for ALB ingress to get a hostname (up to 3 minutes)
+      shell: |
+        for i in $(seq 1 18); do
+          HOSTNAME=$(kubectl get ingress alb-ingress -o jsonpath='{.status.loadBalancer.ingress[0].hostname}' 2>/dev/null)
+          if [ -n "$HOSTNAME" ]; then
+            echo "$HOSTNAME"
+            exit 0
+          fi
+          sleep 10
+        done
+        echo "TIMEOUT"
+        exit 1
+      register: alb_dns
+
+    - name: Print ALB DNS — add this to terraform/prod/terraform.tfvars as alb_dns_name
+      debug:
+        msg: |
+          ─────────────────────────────────────────────────
+          ALB DNS: {{ alb_dns.stdout }}
+          Add to terraform/prod/terraform.tfvars:
+            alb_dns_name = "{{ alb_dns.stdout }}"
+          Then run: cd terraform/prod && terraform apply
+          Press Ctrl+C then 'C' to continue after apply is done,
+          or re-run the playbook with --tags post-alb
+          ─────────────────────────────────────────────────
+
+    - name: Pause — run terraform apply with alb_dns_name then press Enter to continue
+      pause:
+        prompt: "Run terraform apply now, then press Enter to continue"
+
+    # ── Step 8: Redis ─────────────────────────────
+    - name: Add bitnami helm repo
+      command: helm repo add bitnami https://charts.bitnami.com/bitnami
+
+    - name: Update helm repos
+      command: helm repo update
+
+    - name: Install Redis
+      command: >
+        helm install redis bitnami/redis
+        --set auth.enabled=false
+        --set architecture=standalone
+        --set master.persistence.enabled=false
+        -n default
+      ignore_errors: true  #Ignore if already installed
+
+    - name: Verify Redis service is present
+      command: kubectl get svc redis-master -n default
+
+    # ── Step 9: Prometheus + Grafana ──────────────
+    - name: Add prometheus-community helm repo
+      command: helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+
+    - name: Update helm repos
+      command: helm repo update
+
+    - name: Install kube-prometheus-stack
+      command: >
+        helm install monitoring prometheus-community/kube-prometheus-stack
+        --namespace monitoring
+        --create-namespace
+        --set prometheus.prometheusSpec.storageSpec=null
+        --set alertmanager.alertmanagerSpec.storage=null
+      ignore_errors: true  #Ignore if already installed
+
+    # ── Done ──────────────────────────────────────
+    - name: Bootstrap complete
+      debug:
+        msg: |
+          ─────────────────────────────────────────────────
+          Cluster bootstrap complete.
+          Remaining manual steps:
+          1. Update image tags in helm charts values.yaml
+          2. kubectl apply -f argocd/application.yaml
+          3. Register Stripe webhook at https://<CLOUDFRONT_DOMAIN>/api/payments/webhook
+          4. Promote admin user via kubectl run psql ...
+          ─────────────────────────────────────────────────
