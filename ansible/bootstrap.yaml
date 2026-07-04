@@ -8,23 +8,23 @@
   gather_facts: false
 
   vars:
-    #── Fill these in before running ────────────────
+    #Filled before running
     aws_region: "us-east-1"
     cluster_name: "ecom-cluster"
     image_updater_role_arn: "arn:aws:iam::844586871941:role/ecom-image-updater-role" #terraform output
     repo_root: "/mnt/c/Web-Apps/Proj3"  #absolute path to repo root
-    #────────────────────────────────────────────────
+    
 
   tasks:
 
-    # ── Step 1: Update kubeconfig ──────────────────
+    #Step 1: Update kubeconfig 
     - name: Update kubeconfig for EKS cluster
       command: >
         aws eks update-kubeconfig
         --region {{ aws_region }}
         --name {{ cluster_name }}
 
-    # ── Step 2: Create namespaces ──────────────────
+    #Step 2: Create namespaces
     - name: Create argocd namespace
       command: kubectl create namespace argocd
       ignore_errors: true  #Ignore if namespace already exists
@@ -37,8 +37,8 @@
       command: kubectl create namespace monitoring
       ignore_errors: true
 
-    # ── Step 3: Argo Rollouts ──────────────────────
-    # Must be installed before ArgoCD so Rollout CRDs exist when ArgoCD syncs
+    #Step 3: Argo Rollouts
+    #Must be installed before ArgoCD so Rollout CRDs exist when ArgoCD syncs
     - name: Add argo helm repo
       command: helm repo add argo https://argoproj.github.io/argo-helm
 
@@ -52,7 +52,7 @@
         --create-namespace
       ignore_errors: true  #Ignore if already installed
 
-    # ── Step 4: Kafka (Strimzi) ───────────────────
+    #Step 4: Kafka (Strimzi)
     - name: Install Strimzi operator
       command: >
         kubectl apply
@@ -72,7 +72,7 @@
 
     
 
-    # ── Step 5: ArgoCD ────────────────────────────
+    #Step 5: ArgoCD
     - name: Install ArgoCD
       command: >
         kubectl apply -n argocd
@@ -87,7 +87,7 @@
         --for=condition=available
         --timeout=180s
 
-    # ── Step 6: ArgoCD Image Updater ──────────────
+    #Step 6: ArgoCD Image Updater
     - name: Install ArgoCD Image Updater
       command: >
         kubectl apply -n argocd
@@ -101,7 +101,7 @@
         --timeout=120s
 
     - name: Annotate Image Updater service account with IAM role
-      # Safe to re-run — --overwrite means it won't fail if annotation already exists
+      #Safe to re-run — --overwrite means it won't fail if annotation already exists
       command: >
         kubectl annotate serviceaccount argocd-image-updater-controller
         -n argocd
@@ -116,7 +116,7 @@
     - name: Apply ImageUpdater CRs
       command: kubectl apply -f {{ repo_root }}/argocd/image-updater.yaml
 
-    # ── Step 7: Shared Helm charts ────────────────
+    #Step 7: Shared Helm charts 
     - name: Install backend-common
       command: helm install backend-common {{ repo_root }}/helm/backend-common
       ignore_errors: true  #Ignore if already installed
@@ -126,7 +126,7 @@
       ignore_errors: true
 
 
-    # ── Step 8: Redis ─────────────────────────────
+    #Step 8: Redis
     - name: Add bitnami helm repo
       command: helm repo add bitnami https://charts.bitnami.com/bitnami
 
@@ -145,7 +145,7 @@
     - name: Verify Redis service is present
       command: kubectl get svc redis-master -n default
 
-    # ── Step 9: Prometheus + Grafana ──────────────
+    #Step 9: Prometheus + Grafana
     - name: Add prometheus-community helm repo
       command: helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
 
@@ -161,15 +161,14 @@
         --set alertmanager.alertmanagerSpec.storage=null
       ignore_errors: true  #Ignore if already installed
 
-    # ── Done ──────────────────────────────────────
+    #Message output for tasks completion 
     - name: Bootstrap complete
       debug:
         msg: |
           ─────────────────────────────────────────────────
            Cluster bootstrap complete.
           Remaining manual steps:
-          1. Get ALB DNS:
-             kubectl get ingress alb-ingress -o jsonpath='{.status.loadBalancer.ingress[0].hostname}'
+          1. Get ALB DNS
           2. Add it to terraform/prod/terraform.tfvars as alb_dns_name
           3. Run: cd terraform/prod && terraform apply
           4. Update image tags in helm charts values.yaml
