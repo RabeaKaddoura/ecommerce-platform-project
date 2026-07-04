@@ -74,3 +74,9 @@ output "ecr_repository_name" {
   description = "ECR repository name"
   value       = module.ecr.ecr_repository_name
 }
+
+#Argo CD outputs
+
+output "image_updater_role_arn" {
+  value = aws_iam_role.image_updater.arn
+}

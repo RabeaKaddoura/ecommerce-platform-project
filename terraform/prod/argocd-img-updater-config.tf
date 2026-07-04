@@ -29,6 +29,4 @@ resource "aws_iam_role_policy_attachment" "image_updater_ecr" {
   role       = aws_iam_role.image_updater.name
 }
 
-output "image_updater_role_arn" {
-  value = aws_iam_role.image_updater.arn
-}
+
