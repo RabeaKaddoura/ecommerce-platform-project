@@ -21,7 +21,7 @@ resources:
     
 #Non-sensitive config
 config:
-  cloudfrontUrl: "d1lpdh8nq6mviy.cloudfront.net" 
+  cloudfrontUrl: "https://d1lpdh8nq6mviy.cloudfront.net" 
   
   
 
